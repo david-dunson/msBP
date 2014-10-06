@@ -1,0 +1,104 @@
+msBP.Gibbs <-
+function(x, a, b, g0 = "normal", g0par=c(0,1), mcmc, grid = list(n.points=40, low=0.001, upp=0.999), state=NULL, hyper, printing=0, maxScale=5, ...){
+	n = length(x)
+	x = sort(x)
+	x.grid = seq(grid$low,grid$upp, length=grid$n.points)
+	if(g0 == "normal")
+	{
+		y = pnorm(x, g0par[1], g0par[2])
+		y.grid = pnorm(x.grid, g0par[1], g0par[2])
+		g0_x = dnorm(x.grid, g0par[1], g0par[2])
+	}
+	if(g0 == "unif")
+	{
+		y = x
+		y.grid = x.grid
+		g0_x = rep(1,grid$n.points)
+	}
+	if(g0 == "gamma")
+	{
+		y = pgamma(x, g0par[1], g0par[2])
+		y.grid = pgamma(x.grid, g0par[1], g0par[2])
+		g0_x = dgamma(x.grid, g0par[1], g0par[2])
+	}
+	if(g0 == "empirical")
+	{
+		grid=list(n.points=150, low=5, upp=38)
+		x.grid = seq(grid$low,grid$upp, length=grid$n.points)
+		kern.smooth <- density(x, from=grid$low, to=grid$upp, n=grid$n.points)
+		mass <- sum(kern.smooth$y)*mean(diff(kern.smooth$x))
+		y.grid = cumsum(kern.smooth$y)*mean(diff(kern.smooth$x))
+		g0_x = kern.smooth$y	}
+	if((g0 != "unif") & (g0 != "normal") & (g0 != "gamma") & (g0 != "empirical"))
+	{
+	cat("Only standard normal, uniform, gamma and empirical Bayes allowed for version 1.0\n")
+	return(0)
+	}
+	if(is.null(state))
+	{
+		state = list()
+		clusters <- msBP.leaf.allocation(y, maxScale)
+		state$sclus = clusters$s
+		state$hclus = clusters$h
+		startTrees = msBP.rtree(a, b, maxScale)
+		state$Rstart = startTrees$R
+		state$Sstart = startTrees$S
+		state$wstart = msBP.compute.prob(startTrees)
+	}
+	res <- .C("msBPgibbs", 
+		y=as.double(y), 
+		par=as.double(c(a,b,unlist(hyper$hyperpar))), 
+		sclus = as.integer(state$sclus),
+		hclus = as.integer(state$hclus),		
+		Sstart = as.double(tree2vec(state$Sstart)),
+		Rstart = as.double(tree2vec(state$Rstart)),
+		wstart = as.double(tree2vec(state$wstart)),
+		hyperpar=as.integer(hyper$hyperprior), 
+		nrep=as.integer(mcmc$nrep), 
+		nb=as.integer(mcmc$nb), 
+		aux=as.integer(c(n, maxScale, (2^(maxScale+1)-1), state$wstart$max.s)),
+		printing = as.integer(c(mcmc$ndisplay,printing)), 
+		grid=as.double(y.grid), 
+		ngrid=as.integer(grid$n.points),
+		griddyB = as.double(hyper$hyperpar$gridB),
+		griddy_length = as.integer(length(hyper$hyperpar$gridB)),
+		postDens=as.double(rep(0,mcmc$nrep*grid$n.points)), 
+		postScale=as.double(rep(0, (maxScale+1)*mcmc$nrep)), 
+		postS=as.double(rep(0, mcmc$nrep*(2^(maxScale+1)-1))), 
+		postR=as.double(rep(0, mcmc$nrep*(2^(maxScale+1)-1))), 
+		postpi=as.double(rep(0, mcmc$nrep*(2^(maxScale+1)-1))), 
+		postA=as.double(rep(a, mcmc$nrep)), 
+		postB=as.double(rep(b, mcmc$nrep)), 
+		posts=as.integer(rep(0, n*mcmc$nrep)),
+		posth=as.integer(rep(0, n*mcmc$nrep)), 
+		type=as.integer(0),
+		PACKAGE = "msBP"
+	)
+	cat("Iteration", mcmc$nrep, "over", mcmc$nrep, "\n")
+	postDens <- matrix(res$postDens, nrow=res$nrep, ncol=res$ngrid, byrow=TRUE)[(mcmc$nb+1):mcmc$nrep,]
+	postDens <- t(t(postDens) * g0_x)	
+	postMeanDens <- apply(postDens, 2, mean)
+	postDensSort <- apply(postDens, 2, sort)
+	postLowDens <- postDensSort[(mcmc$nrep-mcmc$nb)*0.025,]
+	postUppDens <- postDensSort[(mcmc$nrep-mcmc$nb)*0.975,]
+	scale <- matrix(res$postScale, nrow=res$nrep, ncol=maxScale+1, byrow=TRUE)[(mcmc$nb+1):mcmc$nrep,]
+	postMeanScale <- apply(scale, 2, mean)
+	postS <- matrix(res$postS, nrow=res$nrep, ncol=(2^(maxScale+1)-1), byrow=TRUE)[(mcmc$nb+1):mcmc$nrep,]
+	postMeanS <- apply(postS, 2, mean)
+	postMeanS <- vec2tree(postMeanS)
+	postR <- matrix(res$postR, nrow=res$nrep, ncol=(2^(maxScale+1)-1), byrow=TRUE)[(mcmc$nb+1):mcmc$nrep,]
+	postMeanR <- apply(postR, 2, mean)
+	postMeanR <- vec2tree(postMeanR)
+	postW <- matrix(res$postpi, nrow=res$nrep, ncol=(2^(maxScale+1)-1), byrow=TRUE)[(mcmc$nb+1):mcmc$nrep,]
+	postMeanW <- apply(postW, 2, mean)
+	postMeanW <- vec2tree(postMeanW)
+	posts <- matrix(res$posts, nrow=res$nrep, ncol=n, byrow=TRUE)[(mcmc$nb+1):mcmc$nrep,]
+	postMeans <- apply(posts, 2, mean)
+	posth <- matrix(res$posth, nrow=res$nrep, ncol=n, byrow=TRUE)[(mcmc$nb+1):mcmc$nrep,]
+	postMeanh <- apply(posth, 2, mean)
+
+	list(density=list(postMeanDens=postMeanDens, postLowDens=postLowDens, postUppDens=postUppDens, xDens = x.grid),
+		 mcmc=list(dens=postDens, a=res$postA[(mcmc$nb+1):(mcmc$nrep)], b=res$postB[(mcmc$nb+1):(mcmc$nrep)], scale=scale, S=postS, R=postR, weights=postW, s=posts, h = posth),
+		 postmean = list(a=mean(res$postA), b=mean(res$postB), S=postMeanS, R=postMeanR, weights=postMeanW, scales=postMeanScale)
+	)
+	}
