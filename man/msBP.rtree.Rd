@@ -25,7 +25,7 @@ Maximum depth of the random trees
 An object of the class \code{msBPTree}
 }
 \references{
-Canale, A. and Dunson, D., B., (2014), Multiscale Bernstein polynomials for densities, arXiv:1410.0827
+Canale, A. and Dunson, D. B. (2014), "Multiscale Bernstein polynomials for densities", arXiv:1410.0827
 }
 \seealso{
 \code{\link{msBP.rsample}}, \code{\link{msBP.compute.prob}} 

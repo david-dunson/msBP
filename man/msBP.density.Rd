@@ -26,7 +26,7 @@ Logical. TRUE for computing the log-cdf
 Vector of size \code{n.points}
 }
 \references{
-Canale, A. and Dunson, D., B., (2014), Multiscale Bernstein polynomials for densities, arXiv:1410.0827
+Canale, A. and Dunson, D. B. (2014), "Multiscale Bernstein polynomials for densities", arXiv:1410.0827
 }
 \seealso{
 \code{\link{msBP.rtree}}

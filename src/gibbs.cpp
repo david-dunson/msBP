@@ -83,7 +83,7 @@ void msBPgibbs(double *y, double *par, int *sClus, int *hClus,
 		log1_S = 0;
 		for(s=0; s<=maxS; s++)
 		{
-			maxH = (int) pow(2, s);		
+			maxH = (int) pow(2.0, s);		
 			for(h=1; h<=maxH; h++)
 			{
 				vsh = (double) extractNode(v, s, h, 0);
@@ -101,7 +101,6 @@ void msBPgibbs(double *y, double *par, int *sClus, int *hClus,
 				if(s==0)
 				{
 					writeNode(S, 0, s, h);
-					log1_S += log(1);
 				}
 				else 
 				{
@@ -114,13 +113,13 @@ void msBPgibbs(double *y, double *par, int *sClus, int *hClus,
 		}
 		if(hyperpriors[0])
 		{
-			postA[i] = rgamma(beta+pow(2,maxS+1)-1, 1/(gamma - log1_S));
+			postA[i] = rgamma(beta+pow(2.0,maxS+1)-1, 1/(gamma - log1_S));
 			postB[i] = griddy_B(delta, lambda, R, v, n, r, maxS, griddy, griddy_length[0]);
-			if(isnan(postA[i]) | postA[i]<=0) {
+			if(isnan(postA[i]) || (postA[i]<=0)) {
 			//Rprintf("NA! or 0 at ite %i\n", i+1);
 			postA[i] = rgamma(beta, 1/gamma);
 			}
-			if(isnan(postB[i]) | postB[i]<=0) {
+			if(isnan(postB[i]) || (postB[i]<=0)) {
 			//Rprintf("NA! or 0 at ite %i\n", i+1);
 			postB[i] = rgamma(delta, 1/lambda);
 			}
@@ -128,9 +127,7 @@ void msBPgibbs(double *y, double *par, int *sClus, int *hClus,
 		}
 
 		//compute probability tree
-		//w = computeprob_shrink(S, R, a, b, maxS, 1/N);
 		w = computeprob(S, R, a, b, maxS, 0);
-		//printTree(w, maxS);
 		//store posterior quantities
 		if(i >= nb[0]) 
 		{

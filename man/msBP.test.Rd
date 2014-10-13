@@ -29,7 +29,7 @@ a list containing
 \item{Ps}{the posterior probabilities of the global H0, obtained cumulating \code{Ps}.}
 }
 \references{
-Canale, A. and Dunson, D., B., (2014), Multiscale Bernstein polynomials for densities, arXiv:1410.0827
+Canale, A. and Dunson, D. B. (2014), "Multiscale Bernstein polynomials for densities", arXiv:1410.0827
 }
 \examples{
 set.seed(1)

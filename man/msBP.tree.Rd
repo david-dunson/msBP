@@ -22,7 +22,7 @@ An object of the class  \code{msbpTree} is a list of 5 elements that represent a
 An object of the class \code{msBPTree} with zero at all nodes and \code{a=b=NULL}.
 }
 \references{
-Canale, A. and Dunson, D., B., (2014), Multiscale Bernstein polynomials for densities, arXiv:1410.0827
+Canale, A. and Dunson, D. B. (2014), "Multiscale Bernstein polynomials for densities", arXiv:1410.0827
 }
 \author{
 Antonio Canale <antonio.canale@unito.it>

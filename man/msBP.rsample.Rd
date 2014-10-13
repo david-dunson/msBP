@@ -23,7 +23,7 @@ An object of the class msBPtree
 A vector containing the random sample
 }
 \references{
-Canale, A. and Dunson, D., B., (2014), Multiscale Bernstein polynomials for densities, arXiv:1410.0827
+Canale, A. and Dunson, D. B. (2014), "Multiscale Bernstein polynomials for densities", arXiv:1410.0827
 }
 \seealso{
 \code{\link{msBP.rtree}}

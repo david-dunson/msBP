@@ -11,7 +11,7 @@
 #include<Rmath.h>
 #include <algorithm>
 #include "bintree.h"
-int ceil(int a, int b) {return (a/b + (a % b !=0));};
+int ceil(int a, int b) {return (a/b + (a % b !=0));}
 extern "C++" {
 // compute the weigths given a tree truncating after the maximum scale of S 
 struct bintree *computeprob(struct bintree * Stree, struct bintree * Rtree, double a, double b, int maxS, int trunc)
@@ -26,14 +26,14 @@ double I_S = 1;
 for(s=1; s<=(maxS); s++)
 {
 	R_CheckUserInterrupt();
-	maxH = pow(2, s);
+	maxH = pow(2.0, s);
 	for(h=1; h<=maxH; h++)
 	{
 		I_S = 1;
 		for(r=0; r<s; r++)
 		{
-			g_shr = ceil(h, (int)pow(2,s-r)); 	
-			went_right = ((2*g_shr) == ceil(h, (int)pow(2,(s-r-1))) ); //as above
+			g_shr = ceil(h, (int) pow(2.0,s-r)); 	
+			went_right = ((2*g_shr) == ceil(h, (int)pow(2.0,(s-r-1))) ); //as above
 			if(went_right) T_shr = extractNode(Rtree, r, g_shr,0.5);
 			else T_shr = 1 - extractNode(Rtree, r, g_shr, 0.5);
 			I_S = I_S * (1 - extractNode(Stree, r, g_shr,1/(a+1)))*T_shr;
@@ -42,15 +42,15 @@ for(s=1; s<=(maxS); s++)
 	}
 }
 	s = maxS + 1;
-	maxH = pow(2, maxS + 1);
+	maxH = pow(2.0, maxS + 1);
 	GetRNGstate();
 	for(h=1; h<=maxH; h++)
 	{
 		I_S = 1;
 		for(r=0; r<s; r++)
 		{
-			g_shr = ceil(h, (int)pow(2,s-r));
-			went_right = ((2*g_shr) == ceil(h, (int)pow(2,(s-r-1))) ); 
+			g_shr = ceil(h, (int)pow(2.0,s-r));
+			went_right = ((2*g_shr) == ceil(h, (int)pow(2.0,(s-r-1))) ); 
 			if(went_right) T_shr = extractNode(Rtree, r, g_shr,0.5);
 			else T_shr = 1 - extractNode(Rtree, r, g_shr, 0.5);
 			I_S = I_S * (1 - extractNode(Stree, r, g_shr,1/(a+1)))*T_shr;
@@ -58,39 +58,6 @@ for(s=1; s<=(maxS); s++)
 		if(trunc) writeNode(tree, I_S, s, h);
 		else writeNode(tree, rbeta(1,a)*I_S,s,h);
 	}
-	PutRNGstate();
-	return tree;
-}
-//------------------------------------------------------------------------------
-struct bintree *computeprob_shrink(struct bintree * Stree, struct bintree * Rtree, double a, double b, int maxS, double thresh)
-{
-struct bintree *tree = newtree(1);
-writeNode(tree, extractNode(Stree, 0, 1,1), 0,1);
-int maxH =1;
-int s, h, r, g_shr;
-int went_right;
-double T_shr;
-double I_S = 1;
-for(s=1; s<=(maxS+1); s++)
-{
-	R_CheckUserInterrupt();
-	maxH = pow(2, s);
-	for(h=1; h<=maxH; h++)
-	{
-		I_S = 1;
-		for(r=0; r<s; r++)
-		{
-			g_shr = ceil(h, (int)pow(2,s-r)); 	
-			went_right = ((2*g_shr) == ceil(h, (int)pow(2,(s-r-1))) ); //as above
-			if(went_right) T_shr = extractNode(Rtree, r, g_shr,0.5);
-			else T_shr = 1 - extractNode(Rtree, r, g_shr, 0.5);
-			I_S = I_S * (1 - extractNode(Stree, r, g_shr,1/(a+1)))*T_shr;
-		}
-		//thresh = (1/(a+1)) * pow( (a/(a+1)) * 0.5, s);
-		if(extractNode(Stree,s,h,1/(a+1))*I_S<thresh) writeNode(tree, 0 ,s,h);
-		else writeNode(tree, extractNode(Stree,s,h,1/(a+1))*I_S,s,h);
-	}
-}
 	PutRNGstate();
 	return tree;
 }
@@ -106,7 +73,7 @@ for(j=0; j<ngrid[0]; j++) out[j] = 0;
 for(s=0; s<=maxS; s++)
 {
 	R_CheckUserInterrupt();
-	maxH = (int) pow(2, s);
+	maxH = (int) pow(2.0, s);
 	for(h=1; h<=maxH; h++)
 	{
 		for(j=0; j<ngrid[0]; j++)
@@ -128,7 +95,7 @@ for(j=0; j<ngrid[0]; j++) out[j] = 0;
 for(s=0; s<=maxS; s++)
 {
 	R_CheckUserInterrupt();
-	maxH = (int) pow(2, s);
+	maxH = (int) pow(2.0, s);
 	for(h=1; h<=maxH; h++)
 	{
 		for(j=0; j<ngrid[0]; j++)
@@ -143,12 +110,12 @@ for(s=0; s<=maxS; s++)
 void marginalBeta(double * out, double y, int maxS)
 {
 int maxH = 1;
-int s, h, j;
+int s, h;
 struct bintree *tree = newtree(1);
 for(s=0; s<=maxS; s++)
 {
 	R_CheckUserInterrupt();
-	maxH = (int) pow(2, s);
+	maxH = (int) pow(2.0, s);
 	for(h=1; h<=maxH; h++)
 	{
 		writeNode(tree, dbeta(y, (double) h, (double) (maxH - h +1), 0), s, h);
@@ -168,14 +135,14 @@ GetRNGstate();
 for(s=0; s<maxS; s++)
 {
 	R_CheckUserInterrupt();
-	maxH = (int) pow(2, s);
+	maxH = (int) pow(2.0, s);
 	for(h=1; h<=maxH; h++)
 	{
 		writeNode(tree, rbeta(1,a), s,h);
 	}
 }
 PutRNGstate();
-maxH = (int) pow(2, maxS);
+maxH = (int) pow(2.0, maxS);
 for(h=1; h<=maxH; h++) writeNode(tree, 1, s,h);
 return tree;
 }
@@ -191,7 +158,7 @@ GetRNGstate();
 for(s=0; s<(maxS+1); s++)
 {
 	R_CheckUserInterrupt();
-	maxH = (int) pow(2, s);
+	maxH = (int) pow(2.0, s);
 	for(h=1; h<=maxH; h++)
 	{
 		writeNode(tree, rbeta(b,b), s,h);
@@ -207,7 +174,7 @@ double rsample_msBP(struct bintree * Rtree, struct bintree * Stree, int a, int b
 	int stop = 0;
 	int h = 1; 
 	int s = 0;
-	double u, y, S, R, L;
+	double u, y, S, R;
 	GetRNGstate();
 	while(!stop)
 	{
@@ -219,14 +186,13 @@ double rsample_msBP(struct bintree * Rtree, struct bintree * Stree, int a, int b
 		if(!stop)
 		{
 			R = extractNode(Rtree,s,h, rbeta(b,b) ); 
-			L = 1 - R; 
 			u = runif(0,1);
 			if(u<R) h =  2*h;
 			else h = 2*h-1;
 			s = s + 1;
 		}
 	}
-	y = rbeta(h, (int) pow(2,s) - h + 1);
+	y = rbeta(h, (int) pow(2.0,s) - h + 1);
 	PutRNGstate();
 	return y;
 }
@@ -316,12 +282,12 @@ int j;
 double clussize = 0;
 for(sInd=0; sInd<=maxS; sInd++)
 {
-	maxH = (int) pow(2, sInd);
+	maxH = (int) pow(2.0, sInd);
 	for(hInd=1; hInd<=maxH; hInd++)
 	{
 		clussize = 0;
 		for(j=0; j<N; j++)
-			if(s[j] == sInd & h[j] == hInd) clussize += 1;
+			if(s[j] == sInd && h[j] == hInd) clussize += 1;
 		writeNode(tree, clussize, sInd,hInd);
 	}
 }
@@ -342,7 +308,7 @@ int rel_s = 0;
 for(sInd=0; sInd<=maxS; sInd++)
 {
 
-	maxH = (int) pow(2, sInd);
+	maxH = (int) pow(2.0, sInd);
 	for(hInd=1; hInd<=maxH; hInd++)
 	{
 		node_n = 0;
@@ -350,7 +316,7 @@ for(sInd=0; sInd<=maxS; sInd++)
 		node_v = 0;
 		for(j=0; j<N; j++)
 		{
-			if(s[j] == sInd & h[j] == hInd)
+			if((s[j] == sInd) && (h[j] == hInd))
 			{	
 				node_n += 1;			
 				node_v += 1;
@@ -358,8 +324,8 @@ for(sInd=0; sInd<=maxS; sInd++)
 			rel_s = s[j] - sInd;
 			if(rel_s > 0)
 			{
-				if( ceil( h[j], ( (int) pow(2,rel_s))) == hInd) node_v += 1;
-				if( ceil( h[j], ( (int) pow(2,rel_s-1))) == 2*hInd) node_r += 1;
+				if( ceil( h[j], ( (int) pow(2.0,rel_s))) == hInd) node_v += 1;
+				if( ceil( h[j], ( (int) pow(2.0,rel_s-1))) == 2*hInd) node_r += 1;
 			}
 		}	
 		writeNode(n, node_n, sInd,hInd);
@@ -380,7 +346,7 @@ void sampleTree(struct bintree *p, int maxS, int *res)
 	int maxH = 1;
 	for (s = 0; s <= maxS; s++)
 	{ 
-		maxH = (int) pow(2, s);
+		maxH = (int) pow(2.0, s);
 		for (h = 1; h <= maxH; h++)
 		{
 			mass += extractNode(p, s, h, 0);
@@ -388,7 +354,7 @@ void sampleTree(struct bintree *p, int maxS, int *res)
 	}
 	for (s = 0; s <= maxS; s++)
 	{ 
-		maxH = (int) pow(2, s);
+		maxH = (int) pow(2.0, s);
 		for (h = 1; h <= maxH; h++)
 		{
 			cumprob += extractNode(p, s, h, 0)/mass;
@@ -434,7 +400,7 @@ int maxH =1;
 for(s=0; s<=maxS; s++)
 {
 	save[s] = 0;
-	maxH = (int) pow(2, s);	
+	maxH = (int) pow(2.0, s);	
 	for(h=1; h<=maxH; h++) 
 		save[s] += extractNode(pi, s, h, 0);
 }

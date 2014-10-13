@@ -73,9 +73,9 @@ A list containing
 \item{postmean}{A list containing posterior means over the MCMC samples of \code{a}, \code{b}, and of all binary trees}
 }
 \references{
-Canale, A. and Dunson, D., B., (2014), Multiscale Bernstein polynomials for densities, arXiv:1410.0827
+Canale, A. and Dunson, D. B. (2014), "Multiscale Bernstein polynomials for densities", arXiv:1410.0827
 
-Ritter C, Tanner M (1992). "Facilitating the Gibbs Sampler: the Gibbs Stopper and the Griddy-Gibbs Sampler." Journal of the American Statistical Association, 87, 861-868.
+Ritter C., Tanner M. (1992). "Facilitating the Gibbs Sampler: the Gibbs Stopper and the Griddy-Gibbs Sampler." Journal of the American Statistical Association, 87, 861-868.
 }
 \seealso{
 \code{\link{msBP.postCluster}}
@@ -85,11 +85,11 @@ Ritter C, Tanner M (1992). "Facilitating the Gibbs Sampler: the Gibbs Stopper an
 data(galaxy)
 galaxy <- data.frame(galaxy)
 speeds <- galaxy$speed/1000
-
+set.seed(2)
 fit.msbp <- msBP.Gibbs(speeds, a=10, b=5, g0="empirical", 
-	mcmc=list(nrep=3500, nb=500, ndisplay=1000), 
+	mcmc=list(nrep=10000, nb=5000, ndisplay=1000), 
 	hyper=list(hyperprior=TRUE, hyperpar=list(beta=5,gamma=1,delta=1,lambda=1)), 
-	printing = 0, maxS=6, grid=list(n.points=150, low=6, upp=37))
+	printing = 0, maxS=7, grid=list(n.points=150, low=5, upp=38))
 
 hist(speeds, prob=TRUE,br=10, ylim=c(0,0.23), main="", col='grey')
 points(fit.msbp$density$postMeanDens~fit.msbp$density$xDens, ty='l', lwd=2)

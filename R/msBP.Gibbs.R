@@ -28,7 +28,9 @@ function(x, a, b, g0 = "normal", g0par=c(0,1), mcmc, grid = list(n.points=40, lo
 		kern.smooth <- density(x, from=grid$low, to=grid$upp, n=grid$n.points)
 		mass <- sum(kern.smooth$y)*mean(diff(kern.smooth$x))
 		y.grid = cumsum(kern.smooth$y)*mean(diff(kern.smooth$x))
-		g0_x = kern.smooth$y	}
+		g0_x = kern.smooth$y
+		y = approxfun(x.grid, y.grid)(x)	
+	}
 	if((g0 != "unif") & (g0 != "normal") & (g0 != "gamma") & (g0 != "empirical"))
 	{
 	cat("Only standard normal, uniform, gamma and empirical Bayes allowed for version 1.0\n")

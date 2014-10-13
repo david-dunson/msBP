@@ -29,7 +29,7 @@ for(i=0; i<N; i++)
 maxS = (int) fmax(maxS, s[i]);
 }
 
-vecsize = (int) pow(2, maxS + 1) - 1;
+vecsize = (int) pow((double) 2.0, maxS + 1) - 1;
 
 //directly the size of each cluster
 whichnode2(n, s, h, maxS, N);
@@ -90,13 +90,15 @@ void postCluster(int *s, int *h, double *y, struct bintree *pi, int maxS, int N,
 	double slice=0.0;
 	double totweight = 0;
 	int i = 0;	
-	int maxH = (int) pow(2, maxS);
+	int maxH = (int) pow((double) 2.0, maxS);
 	//vector of probability for each scale (0, 1, ..., max)
 	double  *pi_s;
 	pi_s = ( double* ) R_alloc(maxS+1, sizeof(double));
+	for(sInd=0; sInd<(maxS+1); sInd++) pi_s[sInd] = 0;
 	//vector of probability for each scale (0, 1, ..., max) (subject specific)
 	double  *ps;
 	ps = ( double* ) R_alloc(maxS+1, sizeof(double));
+	for(sInd=0; sInd<(maxS+1); sInd++) ps[sInd] = 0;
 	//vector of probability for each node in a scale (subject specific)
 	double  *ph;
 	ph = ( double* ) R_alloc(maxH, sizeof(double));
@@ -128,7 +130,7 @@ void postCluster(int *s, int *h, double *y, struct bintree *pi, int maxS, int N,
 			ps[sInd] = 0;
 			if(pi_s[sInd]>slice)
 			{
-				maxH = (int) pow(2, sInd);		
+				maxH = (int) pow((double) 2.0, sInd);		
 				for(hInd=1; hInd<=maxH; hInd++) ps[sInd] += extractNode(pi, sInd, hInd, 0)*dbeta(y[i], hInd, maxH-hInd+1, 0);  
 				ps[sInd] = ps[sInd]/pi_s[sInd];
 				if(printscreen) 
@@ -140,7 +142,7 @@ void postCluster(int *s, int *h, double *y, struct bintree *pi, int maxS, int N,
 		s[i] = sampleC(ps, maxS+1)-1;
 
 		// (2) given the scale, allocate to one node
-		maxH = (int) pow(2, s[i]);		
+		maxH = (int) pow((double) 2.0, s[i]);		
 		for(hInd=1; hInd<=maxH; hInd++) ph[hInd-1] = extractNode(pi, s[i], hInd, 0) * dbeta(y[i], hInd, maxH - hInd + 1, 0); 
 		h[i] = sampleC(ph, maxH);
 
@@ -172,7 +174,7 @@ int maxH;
 for(i=0; i<griddy_length; i++) post[i] = dgamma(griddy[i], deltapar, lambdapar, 1);
 for(s=0; s<(maxS+1); s++)
 {
-	maxH = (int) pow(2, s);		
+	maxH = (int) pow((double) 2.0, s);		
 	for(h=1; h<=maxH; h++)
 	{
 		rsh = extractNode(r,s,h,0);

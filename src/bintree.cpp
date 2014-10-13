@@ -79,7 +79,7 @@ void tree2array(struct bintree *node, double *array, int maxScale, double ifempt
 	int max = maxScale+1;
 	for(s=0; s<max; s++)
 	{
-		for(h=1; h<pow(2,s)+1; h++)
+		for(h=1; h<pow(2.0,s)+1; h++)
 		{
 			array[ind] = extractNode(node, s, h, ifempty);
 			ind = ind + 1;
@@ -96,7 +96,7 @@ void array2tree(double *a, int maxScale, struct bintree *node)
 	int ind = 0;
 	for(s=0; s<maxScale+1; s++)
 	{
-		for(h=1; h<pow(2,s)+1; h++)
+		for(h=1; h<pow(2.0,s)+1; h++)
 		{
 			writeNode(node, a[ind], s, h);
 			ind = ind + 1;
@@ -109,11 +109,10 @@ void array2tree(double *a, int maxScale, struct bintree *node)
 void printTree(struct bintree *node, int maxS){ 
 	int s = 0;
 	int h = 1;
-	int ind = 0;
 	for(s=0; s<(maxS+1); s++)
 	{
 		Rprintf("S=%i - ", s);
-		for(h=1; h<pow(2,s)+1; h++)
+		for(h=1; h<pow(2.0,s)+1; h++)
 		{
 			Rprintf("%f ", extractNode(node, s, h, 0));
 		}

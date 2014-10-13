@@ -10,7 +10,7 @@ msBP.nrvTrees(sh, maxS = max(sh[,1]))
 }
 \arguments{
   \item{sh}{
-A matrix with 3 row and a number of rows equal to the sample size denoting the scale and node labels of each unit
+A matrix with 2 columns and a number of rows equal to the sample size denoting the scale and node labels of each unit
 }
   \item{maxS}{
 Upper bound for the scale
@@ -19,7 +19,7 @@ Upper bound for the scale
 \value{
 A list containing tree objects of the class \code{binaryTree}.  \code{n} is the tree containing at each node the number of subjects allocated to that node, \code{r} is the tree containing at each node the number of subjects that went right at that node, and  \code{v} is the tree containing at each node the number of subjects that passed through that node.}
 \references{
-Canale, A. and Dunson, D., B., (2014), Multiscale Bernstein polynomials for densities, arXiv:1410.0827
+Canale, A. and Dunson, D. B. (2014), "Multiscale Bernstein polynomials for densities", arXiv:1410.0827
 }
 \examples{
 sh <- cbind(c(2,2,2,3,3,3,3,3,3,3), c(1,2,2,1,2,3,4,5,6,7))

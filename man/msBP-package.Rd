@@ -21,6 +21,6 @@ License: \tab GNU GPL\cr
 Antonio Canale <antonio.canale@unito.it>
 }
 \references{
-Canale, A. and Dunson, D., B., (2014), Multiscale Bernstein polynomials for densities, arXiv:1410.0827
+Canale, A. and Dunson, D. B. (2014), "Multiscale Bernstein polynomials for densities", arXiv:1410.0827
 }
 \keyword{Binary trees, Density estimation, Multiscale stick-breaking, Multiscale testing}

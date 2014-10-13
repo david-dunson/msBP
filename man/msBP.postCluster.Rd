@@ -24,7 +24,7 @@ conditionally on the weights contained in \code{weights}, each subject in \code{
 a matrix with \code{length(y)} row and two columns, denoting the scale and node within the scale, respectively.
 }
 \references{
-Canale, A. and Dunson, D., B., (2014), Multiscale Bernstein polynomials for densities, arXiv:1410.0827
+Canale, A. and Dunson, D. B. (2014), "Multiscale Bernstein polynomials for densities", arXiv:1410.0827
 
 Kalli, M., Griffin, J., and Walker, S. (2011), "Slice sampling mixture models," Statistics and Computing, 21, 93-105.
 }
@@ -32,6 +32,7 @@ Kalli, M., Griffin, J., and Walker, S. (2011), "Slice sampling mixture models," 
 \code{\link{msBP.Gibbs}}
 }
 \examples{
+set.seed(1)
 y <- rbeta(30, 5, 1)
 weights <-structure(list( 
 	T = list(0, c(0,0.10), c(0.0,0,0.3,0.6)), max.s=3), 
