@@ -21,12 +21,20 @@ struct bintree *newtree(double data)
 	return node;
 }
 //------------------------------------------------------------------------------
+void setTree(double data, struct bintree *node){
+node->data = data;
+node->left = NULL;
+node->right = NULL;
+}
+//------------------------------------------------------------------------------
 //write at scale s and node h of a tree the value x 
 struct bintree* writeNode(struct bintree *tree, double x, int s, int h)
 {
 	if(tree == NULL)
 	{
-		tree = newtree(0);
+//		tree = newtree(0);
+		tree = new struct bintree;
+		setTree(0, tree);
 	}
 	if(s == 0){
 		tree->data = x;
@@ -56,7 +64,9 @@ double extractNode(struct bintree *tree, int s, int h, double ifempty)
 	h_ = (double) h;
 	if(tree == NULL)
 	{
-		tree = newtree(ifempty);
+//		tree = newtree(ifempty);
+		tree = new struct bintree;
+		setTree(ifempty, tree);
 	}
 	if(s == 0) {return tree->data;}
 	else {
@@ -141,6 +151,7 @@ void clearTree(struct bintree *node)
 	    node->data = 0;
 	    clearTree(node->left);
 	    clearTree(node->right);
+\
 	}
 }
 //------------------------------------------------------------------------------

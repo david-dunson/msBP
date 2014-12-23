@@ -18,7 +18,7 @@ void msBPgibbs(double *y, double *par, int *sClus, int *hClus,
 	double *Rstart, double *Sstart, double * wstart, int *hyperpriors, 
 	int *nrep, int *nb, int *aux, int *printing, double *grid, int *ngrid, double *griddy, int *griddy_length,
 	double *postDens, double *postScale, double *postS, double *postR, double *postPi, 
-	double *postA, double *postB, int *posts, int *posth, int *type)
+	double *postA, double *postB, int *posts, int *posth)
 {
 	int i, j, s, h;
 	int N = aux[0];  // 1st element of the auxiliary parameters is the dimension n
@@ -47,16 +47,28 @@ void msBPgibbs(double *y, double *par, int *sClus, int *hClus,
 	ZERO[0] = 0;
 
 	//we start from trees of depth 4 (arbitrary choice)
-	struct bintree *S = newtree(1); //rStree(a, 4);
-	struct bintree *R = newtree(0.5); //rRtree(b, 4);
-	struct bintree *w = newtree(1); //computeprob(S, R, a, b, 4, 0);
+//	struct bintree *S = newtree(1); //rStree(a, 4);
+//	struct bintree *R = newtree(0.5); //rRtree(b, 4);
+//	struct bintree *w = newtree(1); //computeprob(S, R, a, b, 4, 0);
+	struct bintree *S = new struct bintree; //rStree(a, 4);
+	struct bintree *R = new struct bintree; //rRtree(b, 4);
+	struct bintree *w = new struct bintree; //computeprob(S, R, a, b, 4, 0);
+	setTree(1.0, S);
+	setTree(0.5, R);
+	setTree(1.0, w);
 	array2tree(Sstart, maxSstart, S);
 	array2tree(Rstart, maxSstart, R);
 	array2tree(wstart, maxSstart, w);
 
-	struct bintree *n = newtree(0);
-	struct bintree *r = newtree(0);
-	struct bintree *v = newtree(0);
+//	struct bintree *n = newtree(0);
+//	struct bintree *r = newtree(0);
+//	struct bintree *v = newtree(0);
+	struct bintree *n = new struct bintree;
+	struct bintree *r = new struct bintree;
+	struct bintree *v = new struct bintree;
+	setTree(0, n);
+	setTree(0, r);
+	setTree(0, v);
 	auxiliaryTrees(sClus, hClus, N, n, r, v);
 
 	GetRNGstate();
@@ -66,8 +78,6 @@ void msBPgibbs(double *y, double *par, int *sClus, int *hClus,
 		else flag = 0;
 		if(flag)  Rprintf("Iteration %i over %i \n",i-1,nrep[0]);
   		R_CheckUserInterrupt();
-	/*	printTree(S, maxS);
-		printTree(R, maxS);*/
 		postCluster(sClus, hClus, y, w, maxS+1, N, printclustering); 
 		clearTree(n);
 		clearTree(r);
@@ -114,14 +124,19 @@ void msBPgibbs(double *y, double *par, int *sClus, int *hClus,
 		if(hyperpriors[0])
 		{
 			postA[i] = rgamma(beta+pow(2.0,maxS+1)-1, 1/(gamma - log1_S));
-			postB[i] = griddy_B(delta, lambda, R, v, n, r, maxS, griddy, griddy_length[0]);
-			if(isnan(postA[i]) || (postA[i]<=0)) {
-			//Rprintf("NA! or 0 at ite %i\n", i+1);
-			postA[i] = rgamma(beta, 1/gamma);
+			if(isnan(postA[i]) || (postA[i]<=0)) 
+			{
+				//Rprintf("NA! or 0 at ite %i\n", i+1);
+				postA[i] = rgamma(beta, 1/gamma);
 			}
-			if(isnan(postB[i]) || (postB[i]<=0)) {
-			//Rprintf("NA! or 0 at ite %i\n", i+1);
-			postB[i] = rgamma(delta, 1/lambda);
+		}
+		if(hyperpriors[1])
+		{
+			postB[i] = griddy_B(delta, lambda, R, maxS, griddy, griddy_length[0]);
+			if(isnan(postB[i]) || (postB[i]<=0)) 
+			{
+				//Rprintf("NA! or 0 at ite %i\n", i+1);
+				postB[i] = rgamma(delta, 1/lambda);
 			}
 			//Rprintf("Sample a = %f, b = %f (ite %i)\n", postA[i-1], postB[i-1], i);
 		}
@@ -131,9 +146,7 @@ void msBPgibbs(double *y, double *par, int *sClus, int *hClus,
 		//store posterior quantities
 		if(i >= nb[0]) 
 		{
-			if(*type==0)
-			{//total weight for each scale
-			scaleProb(w, &(postScale[(MAXS+1)*(i-1)]));
+			scaleProb(w, &(postScale[(MAXS+1)*(i-1)]), MAXS);
 			//vec version of S
 			tree2array(S, &(postS[(i)*MAXVEC]), MAXS, 0);
 			tree2array(R, &(postR[(i)*MAXVEC]), MAXS, 0);
@@ -141,18 +154,14 @@ void msBPgibbs(double *y, double *par, int *sClus, int *hClus,
 			memcpy(&(posts[(i)*N]), &(sClus[0]), N*sizeof(int));
 			memcpy(&(posth[(i)*N]), &(hClus[0]), N*sizeof(int));
 			dmsBP(computeprob(S, R, postA[i], postB[i], maxS, 1), &postDens[ngrid[0]*(i)], grid, ngrid);
-			}
-			if(*type==1)
-			{
-			// note that if type = 1 we are running Alg. 3 for group testing
-			// hence we need to save the chains for v, n, and r descending trees 
-			// but keep the names postS, postR, and postPi for simplicity
-			tree2array(n, &(postS[(i)*MAXVEC]), MAXS, 0);
-			tree2array(r, &(postR[(i)*MAXVEC]), MAXS, 0);
-			tree2array(v, &(postPi[(i)*MAXVEC]), MAXS, 0);
-			}
 		}
 	}
+	deleteTree(S);
+	deleteTree(R);
+	deleteTree(w);
+	deleteTree(n);
+	deleteTree(r);
+	deleteTree(v);
 	PutRNGstate();
 }
 

@@ -1,6 +1,6 @@
 vec2tree <-
 function(vec){
-	scale <- log2(floor(length(vec)/2)+1)
+	scale <- ceiling(log2(floor(length(vec)/2)+1))
 	T <- list()
 	T[[1]] <- vec[1]
 	j = 1

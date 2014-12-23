@@ -12,5 +12,5 @@ struct bintree * whichnode(struct bintree * tree, int si, int hi);
 void whichnode2(struct bintree * tree, int *s, int *h, int maxS, int N);
 int sampleC(double *p, int k);
 void sampleTree(struct bintree *p, int maxS, int *res);
-void scaleProb(struct bintree *pi, double *save);
+void scaleProb(struct bintree *pi, double *save, int maxS);
 void allTrees(int *s, int *h, int maxS, int N, struct bintree * n, struct bintree * r, struct bintree * v);

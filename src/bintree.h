@@ -1,8 +1,8 @@
 /*-------------------------------------------------------------------------------
  Multiscale Bernstein polynomial [msBP]
  bintree.h - Header for bintree.cpp
- Version 0.1 of September 2013
- 2013 - Antonio Canale (antonio.canale@unito.it)
+ Version 2.0 of December 2014
+ 2013/2014 - Antonio Canale (antonio.canale@unito.it)
 -------------------------------------------------------------------------------*/
 // define the C++ binary tree struct
 struct bintree
@@ -12,6 +12,7 @@ struct bintree
 	struct bintree *right;
 };
 struct bintree *newtree(double data); 
+void setTree(double data, struct bintree *node);
 struct bintree* writeNode(struct bintree *tree, double x, int s, int h);
 double extractNode(struct bintree *tree, int s, int h, double ifempty);
 void tree2array(struct bintree *node, double *array, int maxScale, double ifempty);

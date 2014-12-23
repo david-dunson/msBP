@@ -23,7 +23,7 @@ function(x, a, b, g0 = "normal", g0par=c(0,1), mcmc, grid = list(n.points=40, lo
 	}
 	if(g0 == "empirical")
 	{
-		grid=list(n.points=150, low=5, upp=38)
+		grid=list(n.points=grid$n.points, low=grid$low, upp=grid$upp)
 		x.grid = seq(grid$low,grid$upp, length=grid$n.points)
 		kern.smooth <- density(x, from=grid$low, to=grid$upp, n=grid$n.points)
 		mass <- sum(kern.smooth$y)*mean(diff(kern.smooth$x))
@@ -49,13 +49,13 @@ function(x, a, b, g0 = "normal", g0par=c(0,1), mcmc, grid = list(n.points=40, lo
 	}
 	res <- .C("msBPgibbs", 
 		y=as.double(y), 
-		par=as.double(c(a,b,unlist(hyper$hyperpar))), 
+		par=as.double(c(a,b,unlist(hyper$hyperpar)[1:4])), 
 		sclus = as.integer(state$sclus),
 		hclus = as.integer(state$hclus),		
 		Sstart = as.double(tree2vec(state$Sstart)),
 		Rstart = as.double(tree2vec(state$Rstart)),
 		wstart = as.double(tree2vec(state$wstart)),
-		hyperpar=as.integer(hyper$hyperprior), 
+		hyperpar=as.integer(c(hyper$hyperprior$a,hyper$hyperprior$b)), 
 		nrep=as.integer(mcmc$nrep), 
 		nb=as.integer(mcmc$nb), 
 		aux=as.integer(c(n, maxScale, (2^(maxScale+1)-1), state$wstart$max.s)),
@@ -73,7 +73,6 @@ function(x, a, b, g0 = "normal", g0par=c(0,1), mcmc, grid = list(n.points=40, lo
 		postB=as.double(rep(b, mcmc$nrep)), 
 		posts=as.integer(rep(0, n*mcmc$nrep)),
 		posth=as.integer(rep(0, n*mcmc$nrep)), 
-		type=as.integer(0),
 		PACKAGE = "msBP"
 	)
 	cat("Iteration", mcmc$nrep, "over", mcmc$nrep, "\n")
@@ -100,7 +99,7 @@ function(x, a, b, g0 = "normal", g0par=c(0,1), mcmc, grid = list(n.points=40, lo
 	postMeanh <- apply(posth, 2, mean)
 
 	list(density=list(postMeanDens=postMeanDens, postLowDens=postLowDens, postUppDens=postUppDens, xDens = x.grid),
-		 mcmc=list(dens=postDens, a=res$postA[(mcmc$nb+1):(mcmc$nrep)], b=res$postB[(mcmc$nb+1):(mcmc$nrep)], scale=scale, S=postS, R=postR, weights=postW, s=posts, h = posth),
+		 mcmc=list(dens=postDens, a=res$postA, b=res$postB, scale=scale, S=postS, R=postR, weights=postW, s=posts, h = posth),
 		 postmean = list(a=mean(res$postA), b=mean(res$postB), S=postMeanS, R=postMeanR, weights=postMeanW, scales=postMeanScale)
 	)
 	}

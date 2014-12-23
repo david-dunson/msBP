@@ -16,7 +16,9 @@ extern "C++" {
 // compute the weigths given a tree truncating after the maximum scale of S 
 struct bintree *computeprob(struct bintree * Stree, struct bintree * Rtree, double a, double b, int maxS, int trunc)
 {
-struct bintree *tree = newtree(1);
+struct bintree * tree = new struct bintree;
+setTree(1.0, tree);
+//struct bintree *tree = newtree(1);
 writeNode(tree, extractNode(Stree, 0, 1,1), 0,1);
 int maxH =1;
 int s, h, r, g_shr;
@@ -111,7 +113,9 @@ void marginalBeta(double * out, double y, int maxS)
 {
 int maxH = 1;
 int s, h;
-struct bintree *tree = newtree(1);
+struct bintree * tree = new struct bintree;
+setTree(1.0, tree);
+//struct bintree *tree = newtree(1);
 for(s=0; s<=maxS; s++)
 {
 	R_CheckUserInterrupt();
@@ -122,6 +126,7 @@ for(s=0; s<=maxS; s++)
 	}
 }
 tree2array(tree, out, maxS, 0.0);
+deleteTree(tree);
 }
 //------------------------------------------------------------------------------
 //compute a random S tree fixing S = 1 for all h of scale maxS
@@ -130,7 +135,9 @@ struct bintree *rStree (double a, int maxS)
 int s=0;
 int h=1;
 int maxH;
-struct bintree *tree = newtree(1);
+struct bintree * tree = new struct bintree;
+setTree(1.0, tree);
+//struct bintree *tree = newtree(1);
 GetRNGstate();
 for(s=0; s<maxS; s++)
 {
@@ -153,7 +160,9 @@ struct bintree *rRtree (double b, int maxS)
 int s=0;
 int h=1;
 int maxH;
-struct bintree *tree = newtree(1);
+struct bintree * tree = new struct bintree;
+setTree(1.0, tree);
+//struct bintree *tree = newtree(1);
 GetRNGstate();
 for(s=0; s<(maxS+1); s++)
 {
@@ -202,7 +211,9 @@ struct bintree * path(struct bintree * tree, int si, int hi)
 {
 	if(tree == NULL)
 	{
-		tree = newtree(1);
+		tree = new struct bintree;
+		setTree(1.0, tree);
+		//tree = newtree(1);
 	}
 	tree->data = 1;
 	if(si==0) return tree;
@@ -226,7 +237,9 @@ struct bintree * wentright(struct bintree * tree, int si, int hi)
 {
 	if(tree == NULL)
 	{
-		tree = newtree(1);
+		tree = new struct bintree;
+		setTree(1.0, tree);
+		//tree = newtree(1);
 	}
 	tree->data = 0;
 	if(si==0) return tree;
@@ -250,7 +263,9 @@ struct bintree * whichnode(struct bintree * tree, int si, int hi)
 {
 	if(tree == NULL)
 	{
-		tree = newtree(0);
+		tree = new struct bintree;
+		setTree(0, tree);
+		//tree = newtree(0);
 	}
 	else tree->data =0;
 	if(si==0)
@@ -388,13 +403,11 @@ int sampleC(double *p, int k)
 	return j+1;
 }
 //------------------------------------------------------------------------------
-void scaleProb(struct bintree *pi, double *save)
+void scaleProb(struct bintree *pi, double *save, int maxS)
 {	// get the scale probability to compare with the slice variable 
 
 int s;
 int h;
-int maxS;
-maxS = maxDepth(pi);
 int maxH =1;
 
 for(s=0; s<=maxS; s++)

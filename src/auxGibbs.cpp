@@ -46,8 +46,10 @@ for(j=0; j<vecsize; j++)
 	}
 
 //i-th subject specific vectors 
-struct bintree *vi = newtree(0);
-struct bintree *ri = newtree(0);
+struct bintree *vi = new struct bintree;
+struct bintree *ri = new struct bintree;
+setTree(0, vi);
+setTree(0, ri);
 
 //single vectors
 double *vVeci, *rVeci;
@@ -103,11 +105,11 @@ void postCluster(int *s, int *h, double *y, struct bintree *pi, int maxS, int N,
 	double  *ph;
 	ph = ( double* ) R_alloc(maxH, sizeof(double));
 	for(hInd=0; hInd<maxH; hInd++) ph[hInd] = 0;
-	scaleProb(pi, pi_s);
+	scaleProb(pi, pi_s, maxS);
 	if(printscreen)
 	{
 		Rprintf("\nP(scale)");
-		for(sInd=0; sInd<=maxS; sInd++) 
+		for(sInd=0; sInd<(maxS+1); sInd++) 
 		{
 			totweight += pi_s[sInd];
 			Rprintf("%f, ", pi_s[sInd]);
@@ -161,34 +163,102 @@ vmaxset(vmax);
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 double griddy_B(double deltapar, double lambdapar, struct bintree *R, 
-	struct bintree *v, struct bintree *n, struct bintree *r,int maxS, double *griddy, int griddy_length)
+	int maxS, double *griddy, int griddy_length)
 {
 int index=0;
 
 double * post;
 post = ( double* ) R_alloc(griddy_length, sizeof(double));
-double nsh, rsh, vsh, Rsh;
+double Rsh;
 int i, s, h;
 int maxH;
 
-for(i=0; i<griddy_length; i++) post[i] = dgamma(griddy[i], deltapar, lambdapar, 1);
+for(i=0; i<griddy_length; i++) post[i] = dgamma(griddy[i], deltapar, 1/lambdapar, 1);
 for(s=0; s<(maxS+1); s++)
 {
 	maxH = (int) pow((double) 2.0, s);		
 	for(h=1; h<=maxH; h++)
 	{
-		rsh = extractNode(r,s,h,0);
-		vsh = extractNode(v,s,h,0);
-		nsh = extractNode(n,s,h,0);
 		Rsh = extractNode(R,s,h,0);
 		for(i=0; i<griddy_length; i++)
 		{
-			post[i] += dbeta(Rsh, griddy[i] + rsh, griddy[i] + vsh - nsh - rsh, 1);
+			post[i] += dbeta(Rsh, griddy[i], griddy[i], 1);
 		}
 	}
 }
+for(i=0; i<griddy_length; i++) post[i] = exp(post[i]);
+//Rprintf("\-----------------------------------------------------:");
+//Rprintf("\nGriddy:");
+//for(i=0; i<griddy_length; i++) Rprintf("%f ", post[i]);
 index = sampleC(post, griddy_length)-1;
+//Rprintf("\nTake %i (%f)", index, griddy[index]);
 return(griddy[index]);
 }
 //------------------------------------------------------------------------------
+double logposteriorB(double b, double deltapar, double lambdapar, 
+	struct bintree *R,int maxS)
+{
+
+double res = (deltapar-1)*log(b) -b*lambdapar;
+double postlambda = -lambdapar;
+double betaBB = beta(b, b); 
+int maxH;
+int s, h;
+double Right;
+
+for(s=0; s<(maxS+1); s++)
+{
+	maxH = (int) pow(2, s);		
+	for(h=1; h<=maxH; h++)
+	{
+		Right = extractNode(R,s,h,0.5);
+		Rprintf("%f, ", Right);
+		postlambda = (log((Right)*(1-Right)));
+		res += (-log(betaBB)  + b*postlambda);
+	}
 }
+return(res);
+}
+
+//------------------------------------------------------------------------------
+double MH_B(double b, double deltapar, double lambdapar, struct bintree *R,int maxS)
+{
+double a0, a1, a2;
+double proposal;
+double u;
+int index=0;
+
+double postlambda = lambdapar;
+double postdelta = 0;
+int maxH;
+int s, h;
+double Right;
+
+for(s=0; s<(maxS+1); s++)
+{
+	maxH = (int) pow(2, s);		
+	for(h=1; h<=maxH; h++)
+	{
+		Right = extractNode(R,s,h,0.5);
+		postlambda += (log((Right)*(1-Right)));
+	}
+}
+postdelta = deltapar + pow(2, s+1) - 1;
+
+GetRNGstate();
+proposal = rgamma(1, 1);
+u = runif(0,1);
+PutRNGstate();
+
+a1 = logposteriorB(proposal, deltapar, lambdapar, R, maxS) - logposteriorB(b, deltapar, lambdapar, R, maxS);
+a2 = dgamma(b, 1,1, 1) - dgamma(proposal, 1,1, 1); 
+a0 = exp(a1+a2);
+Rprintf("\nMetropolis-Hastings: proposal = %f, old value =%f, prob %f %f --> %f\n", proposal, b, a1, a2, a0);
+if(a0>1) return(proposal);
+else
+if(u<a0) return(proposal);
+else return(b);
+}
+//------------------------------------------------------------------------------
+}
+

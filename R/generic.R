@@ -1,4 +1,4 @@
-plot.binaryTree <- function(x, type = "value", precision = 2, ...)
+plot.binaryTree <- function(x, value=TRUE, precision = 2, size=FALSE, white=TRUE, col.grid=gray.colors(max(order(tree2vec(x)))), ...)
 {
 	x.coord <- 0.5
 	y.coord <- -0.5
@@ -14,22 +14,12 @@ plot.binaryTree <- function(x, type = "value", precision = 2, ...)
 	y1 <- y.coord[-1]
 	plot(0,0, ylim=c(-x$max.s-1,0), xlim=c(0,1), col=0, ylab="scales", xlab="", tcl=0, col.axis=0, ...)
 	segments(x0,y0,x1,y1)
-	if(type=="value")
-	{
-		points(x.coord,y.coord, pch=21, cex=3, bg="white", col=0)
-		text(x.coord,y.coord, round(tree2vec(x),precision))
-	}
-	if(type=="color")
-	{
-		if(max(tree2vec(x))<1) cat("To plot colors on the nodes, the tree must contain integers"); return() 
-		points(x.coord,y.coord, pch=21, cex=3, bg=gray.colors(max(tree2vec(x)))[tree2vec(x)], col=1)
-	}
-	if(type=="size")
-	{
-		biggest <- max(tree2vec(x))
-		scale <- 4/biggest
-		points(x.coord,y.coord, pch=21, cex=scale*tree2vec(x), bg="white")
-	}
+	if(white) bg = "white"
+	else bg=col.grid[rank(tree2vec(x))]
+	if(size)scale <- (4/max(tree2vec(x)))*tree2vec(x)
+	else scale=3
+	points(x.coord,y.coord, cex=scale, bg=bg, pch=21, col=1)
+	if(value)text(x.coord,y.coord, round(tree2vec(x),precision), cex=scale/4)
 }
 #----------------
 summary.binaryTree <- function(object, ...)

@@ -36,7 +36,7 @@ additional scalar parameters for \code{g0}. If "normal" corresponds to mean and 
 a list giving the parameters for plotting the posterior mean density over a finite grid. It must include the following values: \code{low} and \code{upp} giving the lower and upper bound respectively of the grid and \code{n.points}, an integer giving the number of points of the grid}
    \item{state}{a list giving the current value of the parameters. This list is used if the current analysis is the continuation of a
           previous analysis or if we want to start the MCMC algorithm from some particular value of the parameters.}
-  \item{hyper}{a list containing the values of the hyperparameters for \code{a} and \code{b}. It must contains \code{hyperprior}, a logical value determining if hyperpriors are used (TRUE) or if \code{a} and \code{b} are fixed parameters (FALSE), and \code{hyperpar} a list containing the hyperparamters for the hyperprior distributions: \code{beta}, \code{gamma}, \code{delta}, and \code{lambda}. \code{gridB}, a grid of values for which the prior (and posterior) for \code{b} are evaluate with a Griddy Gibbs approach (Ritter and Tanner, 1992). See details.}
+  \item{hyper}{a list containing the values of the hyperparameters for \code{a} and \code{b}. It must contains \code{hyperprior}, a list of two logical values determining if hyperpriors for \code{a} and \code{b} are used (TRUE) or if \code{a} and \code{b} are fixed parameters (FALSE), and \code{hyperpar} a list containing the hyperparamters for the hyperprior distributions: \code{beta}, \code{gamma}, \code{delta}, and \code{lambda}. \code{gridB}, a grid of values for which the prior (and posterior) for \code{b} are evaluate with a Griddy Gibbs approach (Ritter and Tanner, 1992). See details.}
   \item{printing}{Vector of integers if the internal C++ function need to print what is doing}
   \item{maxScale}{maximum scale of the binary trees.}
   \item{...}{additional arguments.}
@@ -56,10 +56,10 @@ For the former parameter the full conditional posterior distribution is availabl
 }
 while for the latter its full conditional posterior is proportional to 
 \deqn{
-	b^\delta \prod_{s=0}^{s'} \prod_{h=1}^{2^s} \frac{1}{B(b,b)} \exp \left\{-b \left(
-	\lambda \sum_{s=0}^{s'} \sum_{h=1}^{2^s} \log\{R_{s,h} (1 - R_{s,h} )\} \right) \right\},
+	\frac{b^{\delta-1}}{B(b,b)^{2^{s+1}-1}} \exp \left\{b \left(
+	\sum_{s=0}^{s'} \sum_{h=1}^{2^s} \log\{R_{s,h} (1 - R_{s,h} )\} - \lambda\right) \right\},
 }{
-	b^\delta \prod_{s=0}^{s'} \prod_{h=1}^{2^s} 1/B(b,b) \exp ( -b (\lambda \sum_{s=0}^{s'} \sum_{h=1}^{2^s} \log(R_{s,h} (1 - R_{s,h} ))) ,
+	b^{\delta-1}/B(b,b)^{2^{s+1}-1} \exp ( b ( \sum_{s=0}^{s'} \sum_{h=1}^{2^s} \log(R_{s,h} (1 - R_{s,h} )) - \lambda ) ,
 }
 where \eqn{s'} is the maximum occupied scale and \eqn{B(p, q)} is the Beta function. To sample
 from the latter distribution, a griddy Gibbs approach over the grid defined by \code{hyper$hyperpar$gridB} is used. See Ritter and Tanner (1992).
@@ -85,10 +85,11 @@ Ritter C., Tanner M. (1992). "Facilitating the Gibbs Sampler: the Gibbs Stopper 
 data(galaxy)
 galaxy <- data.frame(galaxy)
 speeds <- galaxy$speed/1000
-set.seed(2)
+set.seed(1)
 fit.msbp <- msBP.Gibbs(speeds, a=10, b=5, g0="empirical", 
 	mcmc=list(nrep=10000, nb=5000, ndisplay=1000), 
-	hyper=list(hyperprior=TRUE, hyperpar=list(beta=5,gamma=1,delta=1,lambda=1)), 
+	hyper=list(hyperprior=list(a=TRUE, b=TRUE), 
+	hyperpar=list(beta=5,gamma=1,delta=1,lambda=1)), 
 	printing = 0, maxS=7, grid=list(n.points=150, low=5, upp=38))
 
 hist(speeds, prob=TRUE,br=10, ylim=c(0,0.23), main="", col='grey')

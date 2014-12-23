@@ -1,11 +1,12 @@
-msBP.test <- function(y, a, b, group, priorH0 = 0.5, g0 = "uniform", mcmc, maxScale=5, plot.it=FALSE, ...)
+msBP.test <- function(y, a, b, group, priorH0 = 0.5, mcmc, maxScale=5, plot.it=FALSE, ...)
 {
 	priorH1 <- 1 - priorH0
+	group <- factor(group, labels=c(0,1))
 	w <- w1 <- w0 <- msBP.compute.prob(msBP.rtree(a,b,maxScale), root=FALSE)
 	Ps <- matrix(0.5, maxScale, mcmc$nrep)
 	for(ite in 2:mcmc$nrep)
 	{
-		if(ite/100 == round(ite/mcmc$ndisplay)) cat(ite)
+		if(ite/mcmc$ndisplay == round(ite/mcmc$ndisplay)) cat(ite, "/", mcmc$nrep, "iterations\n")
 		#cat(ite)
 		Pm <- rep(c(1,Ps[,ite-1]), c(2^(0:(maxScale))))
 		W1 <- vec2tree(Pm*tree2vec(w) + (1-Pm)*tree2vec(w1))
@@ -37,6 +38,11 @@ msBP.test <- function(y, a, b, group, priorH0 = 0.5, g0 = "uniform", mcmc, maxSc
 	}
 	Ps
 	Pp <- apply(Ps,1,mean)
-	if(plot.it) plot(cumprod(Pp)~c(1:maxScale), ty='b', xlab="scale", ylim=c(0,1), ylab="P(H_0 | - )", ...)	
+	if(plot.it)
+	{
+	plot(cumprod(Pp)~c(1:maxScale), xlab="Scale", ylab=expression(paste(hat(Pr),'(',H[0],' | ', - ')')), ylim=c(-0.2,1.2), cex=0.8,  ty='b', yaxt='n',xaxt='n', lwd=1.5)
+	axis(2, at=c(0, 0.5, 1))
+	axis(1, at=c(1:maxScale))
+	} 
 	out <- list(Ps=Ps, Pp=Pp)
 }

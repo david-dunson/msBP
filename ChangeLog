@@ -3,3 +3,4 @@ R package 'msBP' history file
 2013      : built private version
 2014-10-07: 1.0   first version uploaded on CRAN
 2014-10-13: 1.0-1 fixed compiling warnings and errors under Solaris and OS-X
+2014-12-23: 1.0-2 changes in the generic function "plot", fixed memory leaking and minor modifications

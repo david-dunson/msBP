@@ -35,11 +35,11 @@ Kalli, M., Griffin, J., and Walker, S. (2011), "Slice sampling mixture models," 
 set.seed(1)
 y <- rbeta(30, 5, 1)
 weights <-structure(list( 
-	T = list(0, c(0,0.10), c(0.0,0,0.3,0.6)), max.s=3), 
+	T = list(0, c(0,0.10), c(0.0,0,0.3,0.6)), max.s=2), 
 	class  = 'binaryTree')
 sh <- msBP.postCluster(y, weights)
 clus.size <- msBP.nrvTrees(sh)$n
-plot(clus.size, type="value")
+plot(clus.size)
 }
 \keyword{multiscale clustering}
 
