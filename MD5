@@ -1,5 +1,5 @@
 da444c24e7f0cb20f33bc26211a51326 *ChangeLog
-eff451066bcdef5d38497606d42ad55c *DESCRIPTION
+4f2c55e51010898db4a88b54d3aaa118 *DESCRIPTION
 084cc5ac72078e386b2d5a2284a00f6b *NAMESPACE
 9ee7967dc5200b1e1cd3c92986a2ece0 *R/generic.R
 3867121ebcaf6c49f07512406463f32e *R/msBP.Gibbs.R
@@ -29,7 +29,7 @@ da210bc87927072aa233d10ad1d78b0e *man/msBP.rsample.Rd
 cc2ec17329853244781768ec1419df84 *man/msBP.tree.Rd
 9a0aec344f7205da7c72309b95a0649e *man/tree2vec.Rd
 2a6f9e9e044a78154d3cfda5936d6f48 *src/Makevars
-49af1c380152ecee3cb5c3aa13c636ff *src/auxGibbs.cpp
+1765018d845f0a6cca03b80a7fe1c8fe *src/auxGibbs.cpp
 3a4628cb725b9cf63890db1bb10e108c *src/auxGibbs.h
 236c3d2355591c54f0cecbe8f013f1e9 *src/bintree.cpp
 845a103513e853a197792459f16d736c *src/bintree.h

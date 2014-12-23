@@ -208,7 +208,7 @@ double Right;
 
 for(s=0; s<(maxS+1); s++)
 {
-	maxH = (int) pow(2, s);		
+	maxH = (int) pow(.02, s);		
 	for(h=1; h<=maxH; h++)
 	{
 		Right = extractNode(R,s,h,0.5);
@@ -236,14 +236,14 @@ double Right;
 
 for(s=0; s<(maxS+1); s++)
 {
-	maxH = (int) pow(2, s);		
+	maxH = (int) pow(2.0, s);		
 	for(h=1; h<=maxH; h++)
 	{
 		Right = extractNode(R,s,h,0.5);
 		postlambda += (log((Right)*(1-Right)));
 	}
 }
-postdelta = deltapar + pow(2, s+1) - 1;
+postdelta = deltapar + pow(2.0, s+1) - 1;
 
 GetRNGstate();
 proposal = rgamma(1, 1);
