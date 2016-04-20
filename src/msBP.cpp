@@ -64,6 +64,31 @@ for(s=1; s<=(maxS); s++)
 	return tree;
 }
 //------------------------------------------------------------------------------
+// compute the log-likelihood of the mixture model on a set of (non trasformed) data points
+void likmsBP(struct bintree *weights, double * lik, double * g0_x, double * G0_x, int * n)
+{
+int maxS;
+maxS = maxDepth(weights);
+int maxH = 1;
+int s, h, i;
+double lik_i = 0.0;
+lik[0] = 0;
+for(i=0; i<n[0]; i++)
+{
+	lik_i = 0.0;
+	for(s=0; s<=maxS; s++)
+	{
+		R_CheckUserInterrupt();
+		maxH = (int) pow(2.0, s);
+		for(h=1; h<=maxH; h++)
+		{		
+			lik_i = lik_i + extractNode(weights, s, h,0) * dbeta(G0_x[i], (double) h, (double) (maxH - h +1), 0);
+		}
+	}
+	lik[0] = lik[0] +  log(lik_i) + log(g0_x[i]); 
+}
+}
+//------------------------------------------------------------------------------
 // compute the density of the mixture model on finite grid of points
 void dmsBP(struct bintree *weights, double * out, double * grid, int * ngrid)
 {

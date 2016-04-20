@@ -68,6 +68,7 @@ nestH1 <-    ((2^(1:maxScale-1)) * (lgamma(a+1) - lgamma(a) + lgamma(2*b) - 2*lg
 nestH0 <-    ((2^(1:maxScale-1)) * (lgamma(a+1) - lgamma(a) + lgamma(2*b) - 2*lgamma(b))) + nestH000
 
 postH0 <- 1/(1 + odd*exp(nestH1-nestH0))
-rbind(postH0=postH0[1:(maxScale)], nestH0=nestH0[1:(maxScale)], nestH1 = nestH1[1:(maxScale)])
+BF <- exp(nestH0 -  nestH1)
+rbind(postH0=postH0[1:(maxScale)], nestH0=nestH0[1:(maxScale)], nestH1 = nestH1[1:(maxScale)], BF=BF[1:(maxScale)])
 }
 #---

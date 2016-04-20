@@ -4,9 +4,10 @@ msBP.test <- function(y, a, b, group, priorH0 = 0.5, mcmc, maxScale=5, plot.it=F
 	group <- factor(group, labels=c(0,1))
 	w <- w1 <- w0 <- msBP.compute.prob(msBP.rtree(a,b,maxScale), root=FALSE)
 	Ps <- matrix(0.5, maxScale, mcmc$nrep)
+	BF <- rep(0.5, mcmc$nrep)
 	for(ite in 2:mcmc$nrep)
 	{
-		if(ite/mcmc$ndisplay == round(ite/mcmc$ndisplay)) cat(ite, "/", mcmc$nrep, "iterations\n")
+		if(ite/mcmc$ndisplay == round(ite/mcmc$ndisplay)) cat("Iteration", ite, "over", mcmc$nrep, "\n")
 		#cat(ite)
 		Pm <- rep(c(1,Ps[,ite-1]), c(2^(0:(maxScale))))
 		W1 <- vec2tree(Pm*tree2vec(w) + (1-Pm)*tree2vec(w1))
@@ -35,6 +36,7 @@ msBP.test <- function(y, a, b, group, priorH0 = 0.5, mcmc, maxScale=5, plot.it=F
 		w1 <- msBP.compute.prob(structure(list(S = vec2tree(S1), R = vec2tree(R1)), class  = "msbpTree"), root=FALSE)
 		testingprobs <- msBP.nesting(n,r,v,n0,r0,v0,n1,r1,v1,priorH0,a,b,maxScale)
 		Ps[,ite] <- testingprobs[1,]
+		BF[ite] <- testingprobs[4,maxScale]
 	}
 	Ps
 	Pp <- apply(Ps,1,mean)
@@ -44,5 +46,5 @@ msBP.test <- function(y, a, b, group, priorH0 = 0.5, mcmc, maxScale=5, plot.it=F
 	axis(2, at=c(0, 0.5, 1))
 	axis(1, at=c(1:maxScale))
 	} 
-	out <- list(Ps=Ps, Pp=Pp)
+	out <- list(Ps=Ps, Pp=Pp, BF=mean(BF))
 }

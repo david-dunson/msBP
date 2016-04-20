@@ -1,8 +1,8 @@
 /*-------------------------------------------------------------------------------
  Multiscale Bernstein polynomials [msBP]
- gibbs.cpp - Gibbs sampling code for msBP density estimation [Algorithm 3]
- Version 0.3 of September 2014
- 2014 - Antonio Canale (antonio.canale@unito.it)
+ gibbs.cpp - Gibbs sampling code for msBP density estimation
+ Version 1.0 of April 2016
+ 2014 - 2016 Antonio Canale (antonio.canale@unito.it)
 -------------------------------------------------------------------------------*/
 #include<stdio.h>
 #include<stdlib.h>
@@ -14,11 +14,36 @@
 #include "auxGibbs.h"
 //------------------------------------------------------------------------------
 extern "C"{
-void msBPgibbs(double *y, double *par, int *sClus, int *hClus, 
-	double *Rstart, double *Sstart, double * wstart, int *hyperpriors, 
-	int *nrep, int *nb, int *aux, int *printing, double *grid, int *ngrid, double *griddy, int *griddy_length,
-	double *postDens, double *postScale, double *postS, double *postR, double *postPi, 
-	double *postA, double *postB, int *posts, int *posth)
+void msBPgibbs(
+	double *x,				//original data
+	double *y, 				//transformed data
+	double *par, 			//paramters
+	int *sClus, 			//starting values for the scale labels (n-size vector)
+	int *hClus,				//starting values for the node labels (n-size vector) 
+	double *Rstart, 		//starting values for the R tree
+	double *Sstart, 		//starting values for the S tree
+	double * wstart, 		//starting values for the tree of weights
+	int *hyperpriors, 		//three logical paramters if hyperpriors are assumed
+	int *nrep, 				//number of MCMC iterations
+	int *nb, 				//number of burn in iterations
+	int *aux, 				//auxiliary paramters (see comments below)
+	int *printing, 			//auxiliary parameters for standard output printing
+	double *grid, 			//grid for density
+	int *ngrid, 			//length of grid
+	double *griddy, 		//grid for posterior evaluation of b is b is random (griddy gibbs)
+	int *griddy_length,		//length of griddy
+	double *postDens, 		//density value on a grid
+	double *postScale, 		//sum of the weighs in each scale 
+	double *postS, 			//tree3vec of posterior stopping probs S
+	double *postR, 			//tree3vec of posterior righ-descending probs R			
+	double *postPi, 		//tree3vec of posterior weights
+	double *postA, 			//vector of random a if hyperprior 
+	double *postB, 			//vector of random b if hyperprior 
+	int *posts, 			//vec(matrix) of scale labels for each subject through the MCMC
+	int *posth, 			//vec(matrix) of node labels for each subject through the MCMC
+	double *mu, 			//vector for the random mu (if base is normal and random hyperpar)	
+	double *sigma2			//vector for the random sigma2 (if base is normal and random hyperpar)
+		)			
 {
 	int i, j, s, h;
 	int N = aux[0];  // 1st element of the auxiliary parameters is the dimension n
@@ -45,6 +70,27 @@ void msBPgibbs(double *y, double *par, int *sClus, int *hClus,
 	int *ZERO;
 	ZERO = ( int* ) R_alloc(1, sizeof(int));
 	ZERO[0] = 0;
+
+	//bunch of allocations if centering measure with random paramters
+	double likstar = 0.0;  // devo trasformare in puntatori listar e likold
+	double likold = 0.0; 
+	double mustar = 0.0;
+	double tau2star = 1.0;
+	double mu0, kappa0, alpha0, beta0;
+	mu0 = par[6];
+	kappa0 = par[7];
+	alpha0 = par[8];
+	beta0 = par[9];
+	double * g0_x_old, * G0_x_old, * g0_x_star, * G0_x_star;
+	g0_x_old = ( double* ) R_alloc(N, sizeof(double));
+	G0_x_old = ( double* ) R_alloc(N, sizeof(double));
+	g0_x_star = ( double* ) R_alloc(N, sizeof(double));
+	G0_x_star = ( double* ) R_alloc(N, sizeof(double));
+	double mhprob = 1.0;
+	double rU = 1.0;
+	double * grid_new;
+	grid_new = ( double* ) R_alloc(ngrid[0], sizeof(double));
+	memcpy(&(grid_new[0]), &(grid[0]), ngrid[0] * sizeof(double));
 
 	//we start from trees of depth 4 (arbitrary choice)
 //	struct bintree *S = newtree(1); //rStree(a, 4);
@@ -78,6 +124,62 @@ void msBPgibbs(double *y, double *par, int *sClus, int *hClus,
 		else flag = 0;
 		if(flag)  Rprintf("Iteration %i over %i \n",i-1,nrep[0]);
   		R_CheckUserInterrupt();
+		// from version 1.2 new gibbs sampling step for the parameters of g0
+		if(hyperpriors[2])
+		{
+			likstar = 0.0;
+			likold = 0.0; 
+			//proposal
+			tau2star = rgamma(alpha0, 1/beta0);
+			mustar = rnorm(mu0, kappa0/tau2star);
+			//transform the data
+			for(j=0; j<N; j++)
+			{
+				g0_x_old[j] = dnorm(x[j], mu[i-1], sqrt(sigma2[i-1]), 0 );
+				G0_x_old[j] = pnorm(x[j], mu[i-1], sqrt(sigma2[i-1]), 1, 0 );
+				g0_x_star[j] = dnorm(x[j], mustar, 1/sqrt(tau2star), 0 );
+				G0_x_star[j] = pnorm(x[j], mustar, 1/sqrt(tau2star), 1, 0 );
+			}
+			//compute the posterior ratio for MH acceptance probability
+			likmsBP(w, &(likstar), g0_x_star, G0_x_star, &(N));
+			likmsBP(w, &(likold),  g0_x_old,  G0_x_old,  &(N));
+			mhprob = exp(likstar-likold);
+			if(mhprob>1)
+			{
+				mu[i] = mustar;
+				sigma2[i] = 1/tau2star;
+				memcpy(&(y[0]), &(G0_x_star[0]), N * sizeof(double));
+				for(j=0; j<ngrid[0]; j++)
+				{
+					grid_new[j] = pnorm(grid[j], mu[i], sqrt(sigma2[i]), 1, 0);
+				}
+				//Rprintf("proposal accepted deterministically\n");
+				
+			}
+			else
+			{
+				rU = unif_rand();
+				if(mhprob>rU)
+				{
+					mu[i] = mustar;
+					sigma2[i] = 1/tau2star;
+					memcpy(&(y[0]), &(G0_x_star[0]), N * sizeof(double));
+					for(j=0; j<ngrid[0]; j++)
+					{
+						grid_new[j] = pnorm(grid[j], mustar, 1/sqrt(tau2star), 1, 0);
+					}
+					//Rprintf("proposal accepted after sampling\n");
+				}
+				else
+				{
+					mu[i] = mu[i-1];
+					sigma2[i] = sigma2[i-1];
+					memcpy(&(y[0]), &(G0_x_old[0]), N * sizeof(double));					
+					//Rprintf("kept the past\n");	
+				}
+			}	
+		}		
+		
 		postCluster(sClus, hClus, y, w, maxS+1, N, printclustering); 
 		clearTree(n);
 		clearTree(r);
@@ -124,7 +226,7 @@ void msBPgibbs(double *y, double *par, int *sClus, int *hClus,
 		if(hyperpriors[0])
 		{
 			postA[i] = rgamma(beta+pow(2.0,maxS+1)-1, 1/(gamma - log1_S));
-			if(isnan(postA[i]) || (postA[i]<=0)) 
+			if(ISNAN(postA[i]) || (postA[i]<=0)) 
 			{
 				//Rprintf("NA! or 0 at ite %i\n", i+1);
 				postA[i] = rgamma(beta, 1/gamma);
@@ -132,13 +234,13 @@ void msBPgibbs(double *y, double *par, int *sClus, int *hClus,
 		}
 		if(hyperpriors[1])
 		{
+			//Rprintf("The grid of griddy b has length %i\n", griddy_length[0]);
 			postB[i] = griddy_B(delta, lambda, R, maxS, griddy, griddy_length[0]);
-			if(isnan(postB[i]) || (postB[i]<=0)) 
+			if(ISNAN(postB[i]) || (postB[i]<=griddy[0]) || (postB[i]>=griddy[griddy_length[0]-1])) 
 			{
-				//Rprintf("NA! or 0 at ite %i\n", i+1);
-				postB[i] = rgamma(delta, 1/lambda);
+				//Rprintf("NA! or out of range (%f, %f) at ite %i\n", i+1, griddy[0], griddy[griddy_length[0]-1]);
+				postB[i] = postB[i-1];//rgamma(delta, 1/lambda);
 			}
-			//Rprintf("Sample a = %f, b = %f (ite %i)\n", postA[i-1], postB[i-1], i);
 		}
 
 		//compute probability tree
@@ -153,7 +255,14 @@ void msBPgibbs(double *y, double *par, int *sClus, int *hClus,
 			tree2array(computeprob(S, R, postA[i], postB[i], maxS, 1), &(postPi[(i)*MAXVEC]), MAXS, 0);
 			memcpy(&(posts[(i)*N]), &(sClus[0]), N*sizeof(int));
 			memcpy(&(posth[(i)*N]), &(hClus[0]), N*sizeof(int));
-			dmsBP(computeprob(S, R, postA[i], postB[i], maxS, 1), &postDens[ngrid[0]*(i)], grid, ngrid);
+			dmsBP(computeprob(S, R, postA[i], postB[i], maxS, 1), &postDens[ngrid[0]*(i)], grid_new, ngrid);
+			if(hyperpriors[2])
+			{
+				for(j=0; j<ngrid[0]; j++)
+				{
+					postDens[ngrid[0] * i + j] = dnorm(grid[j], mu[i], sqrt(sigma2[i]), 0) * postDens[ngrid[0]*(i) + j];
+				}
+			}
 		}
 	}
 	deleteTree(S);

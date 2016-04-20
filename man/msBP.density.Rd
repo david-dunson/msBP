@@ -8,8 +8,8 @@ Random probability density function and random cumulative distribution function 
 Compute the density and the cumulative distribution functions of a random density drawn from an msBP(a,b) process
 }
 \usage{
-msBP.pdf(weights, n.points)
-msBP.cdf(weights, n.points, log)
+msBP.pdf(weights, n.points, y)
+msBP.cdf(weights, n.points, log, y)
 }
 \arguments{
   \item{weights}{
@@ -20,13 +20,16 @@ Length of the grid over (0,1) in which calculate the value of the random density
 }
   \item{log}{
 Logical. TRUE for computing the log-cdf
+}  
+\item{y}{
+Vector of values in which the random density is evaluated. If used, \code{n.points} is not considered.
 }
 }
 \value{
-Vector of size \code{n.points}
+Vector of size \code{n.points} or \code{length(y)}
 }
 \references{
-Canale, A. and Dunson, D. B. (2014), "Multiscale Bernstein polynomials for densities", arXiv:1410.0827
+Canale, A. and Dunson, D. B. (2016), "Multiscale Bernstein polynomials for densities", Statistica Sinica, 26
 }
 \seealso{
 \code{\link{msBP.rtree}}
@@ -37,6 +40,6 @@ prob <-structure(list( T = list(0.15, c(0.05,0.05), c(0.05,0.2,0.1,0.1),
 density <- msBP.pdf(prob, 100)
 probability <- msBP.cdf(prob, 100)
 par(mfrow=c(1,2))
-plot(density$dens~density$x, ty='l', main = "pdf")
-plot(probability$prob~density$x, ty='l', main = "cdf")
+plot(density$dens~density$y, ty='l', main = "pdf")
+plot(probability$prob~density$y, ty='l', main = "cdf")
 }

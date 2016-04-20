@@ -174,6 +174,7 @@ int i, s, h;
 int maxH;
 
 for(i=0; i<griddy_length; i++) post[i] = dgamma(griddy[i], deltapar, 1/lambdapar, 1);
+//Rprintf("\nLength grid%i. posterior prob:", griddy_length);
 for(s=0; s<(maxS+1); s++)
 {
 	maxH = (int) pow((double) 2.0, s);		
@@ -186,79 +187,15 @@ for(s=0; s<(maxS+1); s++)
 		}
 	}
 }
+
+//for(i=0; i<griddy_length; i++)	Rprintf("%f_[%i], ", post[i],i);
+
 for(i=0; i<griddy_length; i++) post[i] = exp(post[i]);
 //Rprintf("\-----------------------------------------------------:");
 //Rprintf("\nGriddy:");
 //for(i=0; i<griddy_length; i++) Rprintf("%f ", post[i]);
-index = sampleC(post, griddy_length)-1;
-//Rprintf("\nTake %i (%f)", index, griddy[index]);
-return(griddy[index]);
+index = sampleC(post, griddy_length);
+//Rprintf("\nTake %i (%f)", index, griddy[index-1]);
+return(griddy[index-1]);
 }
-//------------------------------------------------------------------------------
-double logposteriorB(double b, double deltapar, double lambdapar, 
-	struct bintree *R,int maxS)
-{
-
-double res = (deltapar-1)*log(b) -b*lambdapar;
-double postlambda = -lambdapar;
-double betaBB = beta(b, b); 
-int maxH;
-int s, h;
-double Right;
-
-for(s=0; s<(maxS+1); s++)
-{
-	maxH = (int) pow(.02, s);		
-	for(h=1; h<=maxH; h++)
-	{
-		Right = extractNode(R,s,h,0.5);
-		Rprintf("%f, ", Right);
-		postlambda = (log((Right)*(1-Right)));
-		res += (-log(betaBB)  + b*postlambda);
-	}
 }
-return(res);
-}
-
-//------------------------------------------------------------------------------
-double MH_B(double b, double deltapar, double lambdapar, struct bintree *R,int maxS)
-{
-double a0, a1, a2;
-double proposal;
-double u;
-int index=0;
-
-double postlambda = lambdapar;
-double postdelta = 0;
-int maxH;
-int s, h;
-double Right;
-
-for(s=0; s<(maxS+1); s++)
-{
-	maxH = (int) pow(2.0, s);		
-	for(h=1; h<=maxH; h++)
-	{
-		Right = extractNode(R,s,h,0.5);
-		postlambda += (log((Right)*(1-Right)));
-	}
-}
-postdelta = deltapar + pow(2.0, s+1) - 1;
-
-GetRNGstate();
-proposal = rgamma(1, 1);
-u = runif(0,1);
-PutRNGstate();
-
-a1 = logposteriorB(proposal, deltapar, lambdapar, R, maxS) - logposteriorB(b, deltapar, lambdapar, R, maxS);
-a2 = dgamma(b, 1,1, 1) - dgamma(proposal, 1,1, 1); 
-a0 = exp(a1+a2);
-Rprintf("\nMetropolis-Hastings: proposal = %f, old value =%f, prob %f %f --> %f\n", proposal, b, a1, a2, a0);
-if(a0>1) return(proposal);
-else
-if(u<a0) return(proposal);
-else return(b);
-}
-//------------------------------------------------------------------------------
-}
-

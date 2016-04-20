@@ -5,7 +5,7 @@
 Posterior cluster allocation
 }
 \description{
-Perform the posterior multiscale cluster allocation conditionally on a tree of weights. See Algorithm 2 in Canale and Dunson (2014).
+Perform the posterior multiscale cluster allocation conditionally on a tree of weights. See Algorithm 1 in Canale and Dunson (2016).
 }
 \usage{
 msBP.postCluster(y, weights)
@@ -18,13 +18,13 @@ the binary tree of weights (summing to one). An object of the class msBPTree
 }
 }
 \details{
-conditionally on the weights contained in \code{weights}, each subject in \code{y} is allocated to a multiscale cluster using Algorithm 2 of Canale and Dunson (2014). It relies on a multiscale modification of the slice sampler of Kalli et al. (2011). 
+conditionally on the weights contained in \code{weights}, each subject in \code{y} is allocated to a multiscale cluster using Algorithm 1 of Canale and Dunson (2016). It relies on a multiscale modification of the slice sampler of Kalli et al. (2011). 
 }
 \value{
 a matrix with \code{length(y)} row and two columns, denoting the scale and node within the scale, respectively.
 }
 \references{
-Canale, A. and Dunson, D. B. (2014), "Multiscale Bernstein polynomials for densities", arXiv:1410.0827
+Canale, A. and Dunson, D. B. (2016), "Multiscale Bernstein polynomials for densities", Statistica Sinica, 26
 
 Kalli, M., Griffin, J., and Walker, S. (2011), "Slice sampling mixture models," Statistics and Computing, 21, 93-105.
 }

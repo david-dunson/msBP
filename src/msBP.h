@@ -1,5 +1,6 @@
 struct bintree *computeprob(struct bintree * Stree, struct bintree * Rtree, double a, double b, int maxS, int trunc);
 struct bintree *computeprob_shrink(struct bintree * Stree, struct bintree * Rtree, double a, double b, int maxS, double thresh);
+void likmsBP(struct bintree *weights, double * lik, double * g0_x, double * G0_x, int * n);
 void dmsBP(struct bintree *weights, double * out, double * grid, int * ngrid);
 void pmsBP(struct bintree *weights, double * out, double * grid, int * ngrid, int *log_p);
 void marginalBeta(double * out, double y, int maxscale);

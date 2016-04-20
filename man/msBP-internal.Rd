@@ -5,6 +5,7 @@
 \alias{msBP.nesting}
 \alias{msBP.nrvTree}
 \alias{msBP.posteriorH0}
+\alias{msBP.LPML}
 \title{
 Internal msBP functions
 }

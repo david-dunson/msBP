@@ -11,7 +11,7 @@ for(i in 1:n)
 	{
 		prob[j] <- dbeta(y[i], j, 2^scale - j +1)
 	}
-	h[i] <- c(1:(2^scale))[prob == max(prob)]
+	h[i] <- min(c(1:(2^scale))[prob == max(prob)])
 }
 list(s=s, h=h)
 }

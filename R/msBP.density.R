@@ -1,21 +1,37 @@
 msBP.pdf <-
-function(weights, n.points)
+function(weights, n.points, y=NULL)
+{
+if(is.null(y))
 {
 if(n.points<2) stop("n.points must be an integer greater than 2")
 grid <- seq(0.001, 0.999, length=n.points)
-w <- tree2vec(weights)
+}
+else
+{
+	grid = y
+	n.points = length(y)
+}
+	w <- tree2vec(weights)
 res <- .C("dmsBP_C", as.double(w), as.double(grid), as.integer(n.points), as.integer(weights$max.s), 
 	ans = as.double(rep(0, n.points)), PACKAGE = "msBP")
-list(x=grid,dens=res$ans)
+list(y=grid,dens=res$ans)
 }
 
 msBP.cdf <-
-function(weights, n.points,log=FALSE)
+function(weights, n.points, log=FALSE, y=NULL)
 {
-if(n.points<2) stop("n.points must be an integer greater than 2")
-grid <- seq(0.001, 0.999, length=n.points)
-w <- tree2vec(weights)
-res <- .C("pmsBP_C", as.double(w), as.double(grid), as.integer(n.points), as.integer(weights$max.s), 
+	if(is.null(y))
+	{
+	if(n.points<2) stop("n.points must be an integer greater than 2")
+	grid <- seq(0.001, 0.999, length=n.points)
+	}
+	else
+	{
+		grid = y
+		n.points = length(y)
+	}
+	w <- tree2vec(weights)
+	res <- .C("pmsBP_C", as.double(w), as.double(grid), as.integer(n.points), as.integer(weights$max.s), 
 	ans = as.double(rep(0, n.points)), as.integer(log), PACKAGE = "msBP")
-list(x=grid,prob=res$ans)
+	list(y=grid,prob=res$ans)
 }

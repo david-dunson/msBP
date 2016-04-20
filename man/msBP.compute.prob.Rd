@@ -4,7 +4,7 @@
 Compute binary tree of probabilities
 }
 \description{
-Compute the binary tree of probabilities using the multiscale stick-breaking process of Canale and Dunson (2014). 
+Compute the binary tree of probabilities using the multiscale stick-breaking process of Canale and Dunson (2016). 
 }
 \usage{
 msBP.compute.prob(msBPtree, root = TRUE)
@@ -28,7 +28,7 @@ An object of the msBPTree class is basically a list containing two objects of th
 An object of the class \code{msbpTree}.
 }
 \references{
-Canale, A. and Dunson, D. B. (2014), "Multiscale Bernstein polynomials for densities", arXiv:1410.0827
+Canale, A. and Dunson, D. B. (2016), "Multiscale Bernstein polynomials for densities", Statistica Sinica, 26
 }
 \seealso{
 \code{\link{msBP.rtree}}

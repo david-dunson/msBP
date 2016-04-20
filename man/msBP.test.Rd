@@ -28,7 +28,7 @@ a list containing
 \item{Ps}{the posterior mean probabilities of H0 for each scale.}
 }
 \references{
-Canale, A. and Dunson, D. B. (2014), "Multiscale Bernstein polynomials for densities", arXiv:1410.0827
+Canale, A. and Dunson, D. B. (2016), "Multiscale Bernstein polynomials for densities", Statistica Sinica, 26
 }
 \examples{
 set.seed(1)
