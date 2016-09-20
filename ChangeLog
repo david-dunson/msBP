@@ -5,3 +5,4 @@ R package 'msBP' history file
 2014-10-13: 1.0-1 fixed compiling warnings and errors under Solaris and OS-X
 2014-12-23: 1.0-2 changes in the generic function "plot", fixed memory leaking and minor modifications
 2016-04-19: 1.1   changes in the C++ function "gibbs.cpp" (added random parameters for g_0="normal"), new function to calculate the LPML, updated documentation
+2016-09-19: 1.2   changes in the C++ functions to satisfy C++98 standards in using std::memcpy and std::

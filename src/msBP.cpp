@@ -28,14 +28,14 @@ double I_S = 1;
 for(s=1; s<=(maxS); s++)
 {
 	R_CheckUserInterrupt();
-	maxH = pow(2.0, s);
+	maxH = std::pow(2.0, s);
 	for(h=1; h<=maxH; h++)
 	{
 		I_S = 1;
 		for(r=0; r<s; r++)
 		{
-			g_shr = ceil(h, (int) pow(2.0,s-r)); 	
-			went_right = ((2*g_shr) == ceil(h, (int)pow(2.0,(s-r-1))) ); //as above
+			g_shr = ceil(h, (int) std::pow(2.0,s-r)); 	
+			went_right = ((2*g_shr) == ceil(h, (int)std::pow(2.0,(s-r-1))) ); //as above
 			if(went_right) T_shr = extractNode(Rtree, r, g_shr,0.5);
 			else T_shr = 1 - extractNode(Rtree, r, g_shr, 0.5);
 			I_S = I_S * (1 - extractNode(Stree, r, g_shr,1/(a+1)))*T_shr;
@@ -44,15 +44,15 @@ for(s=1; s<=(maxS); s++)
 	}
 }
 	s = maxS + 1;
-	maxH = pow(2.0, maxS + 1);
+	maxH = std::pow(2.0, maxS + 1);
 	GetRNGstate();
 	for(h=1; h<=maxH; h++)
 	{
 		I_S = 1;
 		for(r=0; r<s; r++)
 		{
-			g_shr = ceil(h, (int)pow(2.0,s-r));
-			went_right = ((2*g_shr) == ceil(h, (int)pow(2.0,(s-r-1))) ); 
+			g_shr = ceil(h, (int)std::pow(2.0,s-r));
+			went_right = ((2*g_shr) == ceil(h, (int)std::pow(2.0,(s-r-1))) ); 
 			if(went_right) T_shr = extractNode(Rtree, r, g_shr,0.5);
 			else T_shr = 1 - extractNode(Rtree, r, g_shr, 0.5);
 			I_S = I_S * (1 - extractNode(Stree, r, g_shr,1/(a+1)))*T_shr;
@@ -79,7 +79,7 @@ for(i=0; i<n[0]; i++)
 	for(s=0; s<=maxS; s++)
 	{
 		R_CheckUserInterrupt();
-		maxH = (int) pow(2.0, s);
+		maxH = (int) std::pow(2.0, s);
 		for(h=1; h<=maxH; h++)
 		{		
 			lik_i = lik_i + extractNode(weights, s, h,0) * dbeta(G0_x[i], (double) h, (double) (maxH - h +1), 0);
@@ -100,7 +100,7 @@ for(j=0; j<ngrid[0]; j++) out[j] = 0;
 for(s=0; s<=maxS; s++)
 {
 	R_CheckUserInterrupt();
-	maxH = (int) pow(2.0, s);
+	maxH = (int) std::pow(2.0, s);
 	for(h=1; h<=maxH; h++)
 	{
 		for(j=0; j<ngrid[0]; j++)
@@ -122,7 +122,7 @@ for(j=0; j<ngrid[0]; j++) out[j] = 0;
 for(s=0; s<=maxS; s++)
 {
 	R_CheckUserInterrupt();
-	maxH = (int) pow(2.0, s);
+	maxH = (int) std::pow(2.0, s);
 	for(h=1; h<=maxH; h++)
 	{
 		for(j=0; j<ngrid[0]; j++)
@@ -144,7 +144,7 @@ setTree(1.0, tree);
 for(s=0; s<=maxS; s++)
 {
 	R_CheckUserInterrupt();
-	maxH = (int) pow(2.0, s);
+	maxH = (int) std::pow(2.0, s);
 	for(h=1; h<=maxH; h++)
 	{
 		writeNode(tree, dbeta(y, (double) h, (double) (maxH - h +1), 0), s, h);
@@ -167,14 +167,14 @@ GetRNGstate();
 for(s=0; s<maxS; s++)
 {
 	R_CheckUserInterrupt();
-	maxH = (int) pow(2.0, s);
+	maxH = (int) std::pow(2.0, s);
 	for(h=1; h<=maxH; h++)
 	{
 		writeNode(tree, rbeta(1,a), s,h);
 	}
 }
 PutRNGstate();
-maxH = (int) pow(2.0, maxS);
+maxH = (int) std::pow(2.0, maxS);
 for(h=1; h<=maxH; h++) writeNode(tree, 1, s,h);
 return tree;
 }
@@ -192,7 +192,7 @@ GetRNGstate();
 for(s=0; s<(maxS+1); s++)
 {
 	R_CheckUserInterrupt();
-	maxH = (int) pow(2.0, s);
+	maxH = (int) std::pow(2.0, s);
 	for(h=1; h<=maxH; h++)
 	{
 		writeNode(tree, rbeta(b,b), s,h);
@@ -226,7 +226,7 @@ double rsample_msBP(struct bintree * Rtree, struct bintree * Stree, int a, int b
 			s = s + 1;
 		}
 	}
-	y = rbeta(h, (int) pow(2.0,s) - h + 1);
+	y = rbeta(h, (int) std::pow(2.0,s) - h + 1);
 	PutRNGstate();
 	return y;
 }
@@ -245,10 +245,10 @@ struct bintree * path(struct bintree * tree, int si, int hi)
 	else
 	{
 	    R_CheckUserInterrupt();
-	    if(hi > pow(2.0, si-1))
+	    if(hi > std::pow(2.0, si-1))
 		{
 			int right_hi;
-			right_hi = hi - (int) pow(2.0, si-1);
+			right_hi = hi - (int) std::pow(2.0, si-1);
 			tree->right = path(tree->right, si-1, right_hi);
 		}
 	    else
@@ -270,11 +270,11 @@ struct bintree * wentright(struct bintree * tree, int si, int hi)
 	if(si==0) return tree;
 	else
 	{
-	    if(hi > pow(2.0, si-1))
+	    if(hi > std::pow(2.0, si-1))
 		{
 			tree->data = 1;
 			int right_hi;
-			right_hi = hi - (int) pow(2.0, si-1);
+			right_hi = hi - (int) std::pow(2.0, si-1);
 			tree->right = wentright(tree->right, si-1, right_hi);
 		}
 	    else
@@ -300,10 +300,10 @@ struct bintree * whichnode(struct bintree * tree, int si, int hi)
 	}
 	else
 	{
-	    if(hi > pow(2.0, si-1))
+	    if(hi > std::pow(2.0, si-1))
 		{
 			int right_hi;
-			right_hi = hi - (int) pow(2.0, si-1);
+			right_hi = hi - (int) std::pow(2.0, si-1);
 			tree->right = whichnode(tree->right, si-1, right_hi);
 		}
 	    else
@@ -322,7 +322,7 @@ int j;
 double clussize = 0;
 for(sInd=0; sInd<=maxS; sInd++)
 {
-	maxH = (int) pow(2.0, sInd);
+	maxH = (int) std::pow(2.0, sInd);
 	for(hInd=1; hInd<=maxH; hInd++)
 	{
 		clussize = 0;
@@ -348,7 +348,7 @@ int rel_s = 0;
 for(sInd=0; sInd<=maxS; sInd++)
 {
 
-	maxH = (int) pow(2.0, sInd);
+	maxH = (int) std::pow(2.0, sInd);
 	for(hInd=1; hInd<=maxH; hInd++)
 	{
 		node_n = 0;
@@ -364,8 +364,8 @@ for(sInd=0; sInd<=maxS; sInd++)
 			rel_s = s[j] - sInd;
 			if(rel_s > 0)
 			{
-				if( ceil( h[j], ( (int) pow(2.0,rel_s))) == hInd) node_v += 1;
-				if( ceil( h[j], ( (int) pow(2.0,rel_s-1))) == 2*hInd) node_r += 1;
+				if( ceil( h[j], ( (int) std::pow(2.0,rel_s))) == hInd) node_v += 1;
+				if( ceil( h[j], ( (int) std::pow(2.0,rel_s-1))) == 2*hInd) node_r += 1;
 			}
 		}	
 		writeNode(n, node_n, sInd,hInd);
@@ -386,7 +386,7 @@ void sampleTree(struct bintree *p, int maxS, int *res)
 	int maxH = 1;
 	for (s = 0; s <= maxS; s++)
 	{ 
-		maxH = (int) pow(2.0, s);
+		maxH = (int) std::pow(2.0, s);
 		for (h = 1; h <= maxH; h++)
 		{
 			mass += extractNode(p, s, h, 0);
@@ -394,7 +394,7 @@ void sampleTree(struct bintree *p, int maxS, int *res)
 	}
 	for (s = 0; s <= maxS; s++)
 	{ 
-		maxH = (int) pow(2.0, s);
+		maxH = (int) std::pow(2.0, s);
 		for (h = 1; h <= maxH; h++)
 		{
 			cumprob += extractNode(p, s, h, 0)/mass;
@@ -438,7 +438,7 @@ int maxH =1;
 for(s=0; s<=maxS; s++)
 {
 	save[s] = 0;
-	maxH = (int) pow(2.0, s);	
+	maxH = (int) std::pow(2.0, s);	
 	for(h=1; h<=maxH; h++) 
 		save[s] += extractNode(pi, s, h, 0);
 }

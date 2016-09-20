@@ -90,7 +90,7 @@ void msBPgibbs(
 	double rU = 1.0;
 	double * grid_new;
 	grid_new = ( double* ) R_alloc(ngrid[0], sizeof(double));
-	memcpy(&(grid_new[0]), &(grid[0]), ngrid[0] * sizeof(double));
+	std::memcpy(&(grid_new[0]), &(grid[0]), ngrid[0] * sizeof(double));
 
 	//we start from trees of depth 4 (arbitrary choice)
 //	struct bintree *S = newtree(1); //rStree(a, 4);
@@ -148,7 +148,7 @@ void msBPgibbs(
 			{
 				mu[i] = mustar;
 				sigma2[i] = 1/tau2star;
-				memcpy(&(y[0]), &(G0_x_star[0]), N * sizeof(double));
+				std::memcpy(&(y[0]), &(G0_x_star[0]), N * sizeof(double));
 				for(j=0; j<ngrid[0]; j++)
 				{
 					grid_new[j] = pnorm(grid[j], mu[i], sqrt(sigma2[i]), 1, 0);
@@ -163,7 +163,7 @@ void msBPgibbs(
 				{
 					mu[i] = mustar;
 					sigma2[i] = 1/tau2star;
-					memcpy(&(y[0]), &(G0_x_star[0]), N * sizeof(double));
+					std::memcpy(&(y[0]), &(G0_x_star[0]), N * sizeof(double));
 					for(j=0; j<ngrid[0]; j++)
 					{
 						grid_new[j] = pnorm(grid[j], mustar, 1/sqrt(tau2star), 1, 0);
@@ -174,7 +174,7 @@ void msBPgibbs(
 				{
 					mu[i] = mu[i-1];
 					sigma2[i] = sigma2[i-1];
-					memcpy(&(y[0]), &(G0_x_old[0]), N * sizeof(double));					
+					std::memcpy(&(y[0]), &(G0_x_old[0]), N * sizeof(double));					
 					//Rprintf("kept the past\n");	
 				}
 			}	
@@ -195,7 +195,7 @@ void msBPgibbs(
 		log1_S = 0;
 		for(s=0; s<=maxS; s++)
 		{
-			maxH = (int) pow(2.0, s);		
+			maxH = (int) std::pow(2.0, s);		
 			for(h=1; h<=maxH; h++)
 			{
 				vsh = (double) extractNode(v, s, h, 0);
@@ -225,7 +225,7 @@ void msBPgibbs(
 		}
 		if(hyperpriors[0])
 		{
-			postA[i] = rgamma(beta+pow(2.0,maxS+1)-1, 1/(gamma - log1_S));
+			postA[i] = rgamma(beta+std::pow(2.0,maxS+1)-1, 1/(gamma - log1_S));
 			if(ISNAN(postA[i]) || (postA[i]<=0)) 
 			{
 				//Rprintf("NA! or 0 at ite %i\n", i+1);
@@ -253,8 +253,8 @@ void msBPgibbs(
 			tree2array(S, &(postS[(i)*MAXVEC]), MAXS, 0);
 			tree2array(R, &(postR[(i)*MAXVEC]), MAXS, 0);
 			tree2array(computeprob(S, R, postA[i], postB[i], maxS, 1), &(postPi[(i)*MAXVEC]), MAXS, 0);
-			memcpy(&(posts[(i)*N]), &(sClus[0]), N*sizeof(int));
-			memcpy(&(posth[(i)*N]), &(hClus[0]), N*sizeof(int));
+			std::memcpy(&(posts[(i)*N]), &(sClus[0]), N*sizeof(int));
+			std::memcpy(&(posth[(i)*N]), &(hClus[0]), N*sizeof(int));
 			dmsBP(computeprob(S, R, postA[i], postB[i], maxS, 1), &postDens[ngrid[0]*(i)], grid_new, ngrid);
 			if(hyperpriors[2])
 			{

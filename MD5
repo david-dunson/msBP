@@ -1,5 +1,5 @@
-b3cbb0f95fa1c8575777e0eb3a93c723 *ChangeLog
-f9dc5e5bdd1a3ff7fb1dd6c05fa1f0cd *DESCRIPTION
+f752bccd477d9bdcb090e08723402880 *ChangeLog
+99a74abc2d3e952459a4f0d6c54335ae *DESCRIPTION
 403f0dcd1c4b3762ca5ae007c403ac7e *NAMESPACE
 9ee7967dc5200b1e1cd3c92986a2ece0 *R/generic.R
 26d7ddad74fd2fbb99673d86cfcc4422 *R/msBP.Gibbs.R
@@ -30,13 +30,13 @@ a4e88ee987781049a898b655af71474b *man/msBP.test.Rd
 48b713dff675a8d5586213bd357942d0 *man/msBP.tree.Rd
 9a0aec344f7205da7c72309b95a0649e *man/tree2vec.Rd
 2a6f9e9e044a78154d3cfda5936d6f48 *src/Makevars
-374cb54ccbaa976c61afa91b1d7cbf07 *src/auxGibbs.cpp
+6cf884377d317a0bdf577ff87d6cd769 *src/auxGibbs.cpp
 3a4628cb725b9cf63890db1bb10e108c *src/auxGibbs.h
 236c3d2355591c54f0cecbe8f013f1e9 *src/bintree.cpp
 845a103513e853a197792459f16d736c *src/bintree.h
-e38c6336fafd8106c129164e1096925c *src/gibbs.cpp
+95f41644e059ad98d9688f67f83af8b1 *src/gibbs.cpp
 869f920fa54cb98b854d92e7c8808de7 *src/gibbs.h
-210b6d650c22f92ac4af59a543ac53c3 *src/msBP.cpp
+df4a6efc4c83b87a3de636211b65e4fc *src/msBP.cpp
 bbf7d1aa5c48badf1288f1defeaf61e3 *src/msBP.h
 cadfed4a5e4b991d10bbf59c42b8307d *src/wrapper.cpp
 f5a8d6c39630203cb26ab83ec6511184 *src/wrapper.h
